@@ -1,0 +1,1339 @@
+<title>玩轉世代 AI 教案｜臺中科大教師社群</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: 1280×720 舞台逐頁簡報（電腦）／整頁捲動（手機）；白底、粗黑字、彩色小方塊點綴（米洛風） */
+:root{
+  --bg:#EDEBE5; --paper:#FFFEFA; --ink:#1B1A18; --muted:#66625B; --line:#E4E0D6; --soft:#F3F0E8;
+  --mag:#D7306E; --blue:#1773EA; --lime:#D5F066; --amber:#FBA705; --sky:#47B2E4; --green:#06C755;
+  --on-acc:#FFFFFF; --code:#F6F3EB;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35  0 0 0 0 .3  0 0 0 0 .22  0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  color-scheme:light;
+  --f-display:"Montserrat","Noto Sans TC",system-ui,sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--grain),var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:var(--blue)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+/* ── top bar ── */
+.bar{position:fixed;top:0;left:0;right:0;z-index:30;height:56px;display:flex;align-items:center;gap:14px;
+  padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));padding-top:env(safe-area-inset-top,0px);
+  background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:31;background:var(--paper)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.mark{width:26px;height:26px;display:grid;grid-template-columns:1fr 1fr;gap:3px;flex:none}
+.mark i{border-radius:3px}.mark i:nth-child(1){background:var(--mag)}.mark i:nth-child(2){background:var(--lime)}.mark i:nth-child(3){background:var(--blue)}.mark i:nth-child(4){background:var(--amber)}
+.brand b{font-family:var(--f-display);font-weight:900;letter-spacing:.06em;font-size:15px;white-space:nowrap}
+.brand span{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar .sp{flex:1}
+.prog{font-family:var(--f-display);font-weight:800;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pill{border:1.5px solid var(--ink);background:transparent;border-radius:999px;padding:5px 14px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.pill:hover{background:var(--ink);color:var(--paper)}
+.progress{position:fixed;top:calc(56px + env(safe-area-inset-top,0px));left:0;height:3px;background:linear-gradient(90deg,var(--mag),var(--amber),var(--lime),var(--sky),var(--blue));z-index:30;transition:width .3s}
+
+/* ── stage ── */
+.viewport{position:fixed;inset:calc(59px + env(safe-area-inset-top,0px)) 0 0 0;overflow:hidden}
+.stage{width:1280px;height:720px;transform-origin:0 0;position:relative}
+.slide{position:absolute;inset:0;background:var(--grain),var(--paper);
+  padding:36px 64px 72px;overflow:auto;display:none;flex-direction:column;gap:16px}
+.slide.on{display:flex}
+.navbtn{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:25;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--paper);cursor:pointer;font-size:18px;display:grid;place-items:center}
+.navbtn.prev{left:max(16px,env(safe-area-inset-left,0px))}.navbtn.next{left:calc(max(16px,env(safe-area-inset-left,0px)) + 54px)}
+
+/* scroll mode (phones / toggle) */
+body.scroll .viewport{position:static;display:block;overflow:visible;padding:calc(72px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 120px max(16px,env(safe-area-inset-left,0px))}
+body.scroll .stage{width:auto;height:auto;transform:none!important;display:flex;flex-direction:column;gap:22px;max-width:1180px;margin:0 auto}
+body.scroll .slide{position:relative;display:flex;overflow:visible;padding:28px clamp(16px,4vw,48px)}
+body.scroll{background:var(--grain),var(--bg)}
+body.scroll .slide{border-radius:10px;box-shadow:0 1px 2px rgba(60,50,30,.08),0 10px 28px rgba(60,50,30,.08)}
+body.scroll .navbtn{display:none}
+
+/* ── type ── */
+.eyebrow{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.eyebrow .sq{width:10px;height:10px;border-radius:2px;background:var(--c,var(--mag))}
+h1,h2,h3{margin:0;text-wrap:balance;letter-spacing:.01em}
+h2{font-size:42px;line-height:1.2;font-weight:900}
+h3{font-size:20px;font-weight:900}
+.lede{font-size:20px;color:var(--muted);margin:0;max-width:80ch}
+p{margin:0}
+.hl{background:linear-gradient(transparent 62%,color-mix(in srgb,var(--lime) 85%,transparent) 62%)}
+.muted{color:var(--muted)}
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;background:var(--soft);color:var(--ink);white-space:nowrap}
+.kbd{display:inline-block;font-family:var(--f-mono);font-size:.85em;border:1.5px solid var(--line);border-bottom-width:3px;border-radius:6px;padding:0 7px;background:var(--paper)}
+
+/* ── cover ── */
+.cover{justify-content:center;gap:22px;overflow:hidden}
+.cover-grid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:40px;align-items:center;position:relative}
+.cover-main{display:flex;flex-direction:column;gap:22px;min-width:0}
+.slide>:not(.confetti):first-child,.slide>.confetti+*{margin-top:auto}.slide>:last-child{margin-bottom:auto}
+.steps>li:first-child{margin-top:auto}.steps>li:last-child{margin-bottom:auto}
+.cover .confetti{position:absolute;inset:0;pointer-events:none}
+.cover .confetti i{position:absolute;border-radius:4px;opacity:.95;animation:bob 6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-10px)}}
+@media (prefers-reduced-motion:reduce){.cover .confetti i{animation:none}*{transition:none!important}}
+.cover h1{font-size:84px;line-height:1.08;font-weight:900;position:relative}
+.cover h1 .en{display:block;font-family:var(--f-display);font-size:30px;letter-spacing:.32em;font-weight:900;margin-bottom:18px}
+.cover h1 .en b{color:var(--mag)}
+.cover .meta{display:grid;grid-template-columns:repeat(2,minmax(0,max-content));gap:14px 48px;position:relative;border-top:1px solid var(--line);padding-top:20px;margin-top:6px}
+.cover .meta div{padding:0}
+.coverqr{position:relative;justify-self:center;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 16px 12px 12px;box-shadow:0 6px 20px rgba(60,50,30,.10)}
+.coverqrs{display:flex;gap:18px;justify-self:center;align-items:stretch}.coverqrs .coverqr{justify-self:auto;text-decoration:none;flex:0 0 auto;width:200px;padding:12px}.coverqr.line{border-color:var(--green);box-shadow:0 6px 20px rgba(6,199,85,.18)}.coverqr.line b{color:var(--green)}.coverqrs .coverqr b{font-size:20px;white-space:nowrap}
+.coverqr img{width:170px;height:170px}.coverqr span{word-break:break-all}
+.coverqr span{font-size:14px;color:var(--muted);line-height:1.5}.coverqr b{display:block;margin-bottom:4px;font-size:22px;color:var(--ink)}
+.cover .meta small{display:block;font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.08em}
+.cover .meta strong{font-size:20px}
+
+.intro{display:grid;grid-template-columns:minmax(0,0.9fr) minmax(0,2fr) minmax(0,0.78fr);gap:36px;align-items:center;flex:1;min-height:0;max-height:600px}
+.intro-photo{width:100%;aspect-ratio:1;object-fit:cover;object-position:60% 30%;border-radius:14px;border:1px solid var(--line);max-width:100%}
+.intro-bio{display:flex;flex-direction:column;gap:16px;min-width:0}
+.intro-bio h2{font-size:36px}
+.intro-cols{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px}
+.intro-cols h3{font-size:15px;color:var(--muted);letter-spacing:.08em;margin-bottom:8px}
+.bio{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px;font-size:15.5px;line-height:1.45}
+.bio li{padding-left:16px;position:relative}.bio li::before{content:"";position:absolute;left:0;top:.55em;width:7px;height:7px;border-radius:2px;background:var(--blue)}
+.introqrs{display:flex;flex-direction:column;gap:12px;min-width:0}.introqrs .fbcard{padding:12px 10px;gap:6px}.introqrs .fbcard img{max-width:118px}.introqrs .fbcard b{font-size:16px}.introqrs .fbcard .fbbtn{font-size:13px;padding:6px 12px}.introqrs .fbcard.site{border:2px solid var(--ink)}
+.intro-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.fbcard{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:22px 18px;border:1px solid var(--line);border-radius:14px;background:var(--paper);box-shadow:0 6px 20px rgba(60,50,30,.10);text-decoration:none;color:var(--ink)}
+.fbcard img{width:100%;max-width:200px;aspect-ratio:1;background:#fff}
+.fbcard b{font-size:21px;line-height:1.35}
+.fbcard span{font-size:14px;color:var(--muted)}
+.fbcard .fbbtn{background:#1877F2;color:#fff;border-radius:999px;padding:8px 16px;font-weight:900;font-size:14px}
+.fbcard:hover .fbbtn{background:#0E5FD0}
+.ai3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;flex:1;min-height:0;max-height:600px}
+.ai3 .ai{display:flex;flex-direction:column;justify-content:space-between;gap:18px;padding:28px 30px}
+.ai-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.ai-h h3{font-size:36px;font-family:var(--f-display);color:var(--c)}
+.ai-h span{font-size:15px;color:var(--muted);font-family:var(--f-display)}
+.ai-best{font-size:21px;font-weight:900;line-height:1.4}
+.ai3 .bio{font-size:18.5px;gap:14px;line-height:1.5}
+.ai3 .bio li::before{background:var(--c);top:.6em}
+.ai3-today{font-size:17px;line-height:1.55;background:color-mix(in srgb,var(--c) 10%,var(--paper));border-radius:10px;padding:12px 16px}
+.ai3-today b{display:block;font-size:13px;letter-spacing:.1em;color:var(--c);margin-bottom:2px}
+.dl{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--paper)}
+.dl b{font-size:15px}
+.dl-row{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 14px;padding:10px 14px}.dl-row b{margin-right:4px}
+
+.dl a{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);font-weight:700;font-size:15.5px;padding:6px 4px;border-radius:8px}
+.dl a:hover{background:var(--soft)}
+.ext{font-family:var(--f-display);font-size:11px;font-weight:900;color:#fff;border-radius:5px;padding:3px 7px;min-width:46px;text-align:center}
+.ext.w{background:#2B579A}.ext.i{background:var(--mag)}.ext.x{background:#217346}
+/* balance: two-column slides fill the height and spread their items */
+.slide>.cols{flex:1;min-height:0;max-height:660px;align-items:stretch}
+.slide>.cols>div,.slide>.cols>ul{display:flex;flex-direction:column;justify-content:space-between;gap:14px;min-height:0}
+.slide>.cols>.box{display:flex;flex-direction:column;justify-content:center;gap:12px}
+.slide>.cols>.tbl{justify-content:center}
+.note{font-size:16px;padding:16px 20px;line-height:1.6}
+.check label{font-size:18px}
+.slide>.cols>div>.note{flex:1;align-items:center}
+.slide>.cols>.check>li{flex:1;display:flex}.slide>.cols>.check>li>label{flex:1;align-items:center}
+.slide>.cols>.check>li>label input{margin-top:0}
+/* ── generic grids ── */
+.cols{display:grid;gap:24px;grid-template-columns:repeat(var(--n,2),minmax(0,1fr))}
+.box{border:1px solid var(--line);border-radius:10px;padding:18px 20px;background:var(--paper)}
+.box.fill{background:var(--soft);border-color:transparent}
+.list{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:6px}
+.stats{display:flex;flex-wrap:wrap}
+.stats div{padding:4px 28px;border-left:1px solid var(--line);text-align:center}.stats div:first-child{border-left:0;padding-left:0}
+.stats b{display:block;font-family:var(--f-display);font-weight:900;font-size:40px;line-height:1.1}
+.stats span{font-size:13px;color:var(--muted);font-weight:700}
+
+/* ── agenda ── */
+.agenda{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 28px;counter-reset:a}
+.agenda a{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);text-decoration:none;color:var(--ink)}
+.agenda a:hover strong{color:var(--blue)}
+.agenda .no{width:30px;height:30px;border-radius:6px;display:grid;place-items:center;font-family:var(--f-display);font-weight:900;font-size:14px;background:var(--c);color:var(--on-acc)}
+.agenda .no.dk{color:#18181B}
+.agenda strong{font-size:17px}.agenda small{display:block;color:var(--muted);font-size:13px;line-height:1.4}
+.agenda em{font-style:normal;font-family:var(--f-display);font-weight:800;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.agenda .brk{grid-column:1/-1;display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px;font-weight:700}
+.agenda .brk::before,.agenda .brk::after{content:"";flex:1;border-top:1px dashed var(--line)}
+
+/* ── portfolio cards (webtech) ── */
+.works{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:16px 18px;flex:1;min-height:0;max-height:620px}
+.work{display:flex;flex-direction:column;gap:8px;min-height:0;text-decoration:none;color:var(--ink)}
+.work .ph{flex:1;min-height:90px;border-radius:8px;overflow:hidden;background:var(--soft);border:1px solid var(--line);max-width:100%}
+.work .ph img{width:100%;height:100%;object-fit:cover;object-position:top;transition:transform .5s}
+.work:hover .ph img{transform:scale(1.05)}
+.work .t{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;font-weight:900;font-size:15px;line-height:1.35}
+.work .t::after{content:"↗";font-family:var(--f-display);border:1px solid var(--line);border-radius:6px;width:24px;height:24px;flex:none;display:grid;place-items:center;font-size:12px;color:var(--muted)}
+.work .k{font-size:12px;color:var(--muted)}
+.work .k span+span::before{content:"｜";color:var(--line);margin:0 2px}
+
+/* ── stepper ── */
+.stepper{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);grid-template-rows:minmax(0,1fr);gap:26px;flex:1;min-height:0}
+.stepper>*{min-height:0}
+.stepper .prompt{max-height:40%;overflow:auto;flex:none}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;overflow:auto;min-width:0}
+.steps li{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;border:1.5px solid transparent}
+.steps li .n{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-family:var(--f-display);font-weight:900;font-size:13px;color:var(--muted);background:var(--paper)}
+.steps li b{display:block;font-size:17.5px;line-height:1.4}
+.steps li p{font-size:15.5px;color:var(--muted);line-height:1.55;display:none;margin-top:4px}
+.steps li.cur{background:var(--soft);border-color:var(--ink)}
+.steps li.cur .n{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.steps li.cur p{display:block}
+.steps li .inl{display:none}
+.steps li.done .n{background:var(--lime);border-color:var(--lime);color:#18181B}
+.shot{margin:0;display:flex;flex-direction:column;gap:8px;min-width:0;min-height:0}
+.shot .frame{flex:1;min-height:0;border-radius:10px;overflow:hidden;background:#0F1012;border:1px solid var(--line);display:grid;place-items:center;cursor:zoom-in;position:relative}
+.shot .frame img{position:absolute;inset:6px;width:calc(100% - 12px);height:calc(100% - 12px);object-fit:contain;display:block}
+body.scroll .shot .frame img{position:static;width:100%;height:auto}
+.shot figcaption{font-size:13px;color:var(--muted);display:flex;justify-content:space-between;gap:10px}
+.shot .hint{font-family:var(--f-display);font-weight:700;white-space:nowrap}
+.stepbar{display:flex;gap:4px}.stepbar i{height:4px;flex:1;border-radius:2px;background:var(--line)}.stepbar i.on{background:var(--ink)}
+
+/* ── prompt block ── */
+.prompt{position:relative;background:var(--code);border-radius:10px;padding:14px 16px 14px 16px;font-family:var(--f-body);font-size:15.5px;line-height:1.7;white-space:pre-wrap;border:1px solid var(--line);min-width:0}
+.prompt .lab{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--f-display);font-weight:800;font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;margin-bottom:6px;white-space:normal}
+.copy{border:1.5px solid var(--ink);background:var(--paper);border-radius:999px;font-size:12px;font-weight:700;padding:2px 12px;cursor:pointer;letter-spacing:0;text-transform:none;font-family:var(--f-body)}
+.copy.ok{background:var(--lime);border-color:var(--lime);color:#18181B}
+
+/* callouts */
+.note{display:flex;gap:12px;align-items:flex-start;border-radius:10px;padding:12px 16px;background:color-mix(in srgb,var(--c,var(--amber)) 14%,var(--paper));border:1px solid color-mix(in srgb,var(--c,var(--amber)) 40%,var(--paper));font-size:14.5px}
+.note b:first-child{flex:none;font-weight:900}
+table{border-collapse:collapse;width:100%;font-size:15.5px}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.06em;color:var(--muted);font-weight:800}
+td.num{font-family:var(--f-display);font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
+.tbl{overflow-x:auto}
+
+.check{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.check label{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;font-size:17px;border:1px solid var(--line);border-radius:10px;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--blue);margin-top:3px;flex:none}
+.check input:checked+span{color:var(--muted);text-decoration:line-through}
+
+/* floating CTAs (webtech) */
+.ctas{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:25;display:flex;gap:10px}
+.cta{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:10px 18px;font-weight:900;font-size:14px;text-decoration:none;color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.cta.o{background:var(--amber);color:#18181B}.cta.g{background:var(--green);color:#fff}
+
+/* toc */
+.toc{position:fixed;inset:0;z-index:50;background:color-mix(in srgb,var(--bg) 96%,transparent);display:none;overflow:auto;padding:calc(76px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.toc.on{display:block}
+.toc ol{max-width:980px;margin:0 auto;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:8px}
+.toc a{display:flex;gap:10px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);background:var(--paper)}
+.toc a i{font-style:normal;font-family:var(--f-display);font-weight:900;color:var(--muted);width:26px}
+.toc a.cur{border-color:var(--ink)}
+.lightbox{position:fixed;inset:0;z-index:60;background:rgba(10,10,12,.88);display:none;place-items:center;padding:24px;cursor:zoom-out}
+.lightbox.on{display:grid}.lightbox img{max-width:100%;max-height:100%;border-radius:8px}
+
+.endqrs,.slide>.cols>.endqrs{display:flex;flex-direction:row;justify-content:flex-start;gap:16px}.endqrs .fbcard{width:210px;padding:18px 14px}.endqrs .fbcard.survey{border:2px solid var(--mag)}
+.qr{width:150px;height:150px;background:#fff;border-radius:10px;padding:6px;flex:none}
+.big-poster{height:100%;max-height:560px;border-radius:8px;border:1px solid var(--line)}
+
+@media (max-width:900px){
+  h2{font-size:28px}.cover h1{font-size:44px}.cover h1 .en{font-size:18px;letter-spacing:.2em}
+  .cols,.stepper{grid-template-columns:minmax(0,1fr)!important}
+  .works{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:auto;max-height:none}.work .ph{flex:none;aspect-ratio:16/9}
+  .agenda{grid-template-columns:minmax(0,1fr)}
+  .shot .frame{min-height:200px}
+  .brand span,.prog{display:none}
+  .stats b{font-size:30px}.stats div{padding:4px 14px}
+  .cover .meta{gap:10px 24px}.cover .meta strong{font-size:16px}
+  .ctas .cta{padding:9px 14px;font-size:13px}
+  .cover .confetti{display:none}
+  .slide>.cols{max-height:none}.slide>.cols>div,.slide>.cols>ul{justify-content:flex-start}.slide>.cols>div>.note,.slide>.cols>.check>li{flex:none}
+  .ai3{grid-template-columns:minmax(0,1fr);max-height:none}
+  .intro{grid-template-columns:minmax(0,1fr);max-height:none}.intro-cols{grid-template-columns:minmax(0,1fr)}.intro-photo{max-width:320px}.introqrs{flex-direction:row;flex-wrap:wrap}.introqrs .fbcard{flex:1 1 140px}.intro-bio h2{font-size:26px}.fbcard{max-width:320px}
+  .cover h1{font-size:36px}
+  body.scroll .steps{overflow:visible}
+  body.scroll .steps li{cursor:default;border-color:var(--line);background:var(--paper)}
+  body.scroll .steps li p{display:block}
+  body.scroll .steps li .n{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+  body.scroll .steps li .inl{display:block;width:100%;height:auto;border-radius:8px;border:1px solid var(--line);margin-top:10px;cursor:zoom-in}
+  body.scroll .stepper .shot{display:none}
+  body.scroll .stepper>*{min-height:auto}
+  body.scroll .stepper .prompt{max-height:none}
+  .cover-grid{grid-template-columns:minmax(0,1fr);gap:24px}.endqrs{flex-wrap:wrap}.endqrs .fbcard{width:100%;max-width:280px}.coverqr{justify-self:start;padding:16px}.coverqrs{justify-self:start;flex-wrap:wrap}.coverqr img{width:150px;height:150px}
+}
+@media (max-width:520px){.works{grid-template-columns:minmax(0,1fr)}.ctas .cta.o{display:none}}
+
+/* ── 教案範例卡（截圖＋QR） ── */
+.exgrid{display:grid;grid-template-columns:repeat(var(--m,3),minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:12px 14px;min-height:0;flex:1;max-height:560px}
+.ex{display:flex;flex-direction:column;gap:6px;min-height:0;border:1px solid var(--line);border-radius:10px;padding:8px;background:var(--paper);text-decoration:none;color:var(--ink);transition:border-color .2s}
+.ex:hover{border-color:var(--ink)}
+.ex .ph{flex:1;min-height:60px;border-radius:6px;overflow:hidden;background:var(--soft)}
+.ex .ph img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.ex .row{display:grid;grid-template-columns:minmax(0,1fr) 62px;gap:8px;align-items:center}
+.ex b{display:block;font-size:15px;line-height:1.3}
+.ex small{display:block;font-size:12.5px;color:var(--muted);line-height:1.4}
+.ex .q{width:62px;height:62px;background:#fff;border-radius:4px}
+.slide>.cols>.exgrid{display:grid;justify-content:stretch;gap:12px 14px}.slide>.cols>.typecol{justify-content:flex-start}
+.embed{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:22px;flex:1;min-height:0;max-height:560px}
+.embed iframe{width:100%;height:100%;min-height:420px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.embed aside{display:flex;flex-direction:column;gap:12px}
+.cmp td,.cmp th{font-size:15px;padding:8px 10px}.cmp td:first-child{font-weight:900;white-space:nowrap;width:12%}
+.cmp th:nth-child(2){color:#1A73E8}.cmp th:nth-child(3){color:var(--ink)}
+.exgrid.tight .ex .ph{display:none}.exgrid.tight{grid-auto-rows:auto;align-content:start}
+.typecol{display:flex;flex-direction:column;gap:12px;min-width:0}
+.keys{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.keys li{display:grid;grid-template-columns:24px 1fr;gap:10px;font-size:16px;line-height:1.5}
+.keys li i{font-style:normal;width:24px;height:24px;border-radius:6px;background:var(--c);color:#fff;display:grid;place-items:center;font-family:var(--f-display);font-weight:900;font-size:12px;margin-top:2px}
+.tools{display:flex;flex-wrap:wrap;gap:6px}.tools .tag{background:color-mix(in srgb,var(--c) 14%,var(--paper))}
+.typeslide .prompt{font-size:14.5px;line-height:1.6}
+/* 四大機制 */
+.mech{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;flex:1;min-height:0;max-height:520px}
+.mech .box{display:flex;flex-direction:column;gap:8px;padding:16px;border-top:6px solid var(--c)}
+.mech h3{font-size:28px;color:var(--c)}
+.mech p{font-size:16.5px;line-height:1.55}.mech .ig{border-top:1px dashed var(--line);padding-top:8px}.mech p b{color:var(--ink)}
+.mech .say{margin-top:auto;font-size:15.5px!important;background:color-mix(in srgb,var(--c) 12%,var(--paper));border-radius:8px;padding:8px 10px;font-size:14.5px;font-weight:700}
+/* 發展 */
+.dev{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;flex:1;min-height:0;max-height:540px}
+.ladder{display:flex;flex-direction:column;gap:8px}
+.ladder div{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:center;border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--paper)}
+.ladder div i{font-style:normal;width:42px;height:42px;border-radius:10px;display:grid;place-items:center;font-family:var(--f-display);font-weight:900;color:#fff;background:var(--c)}
+.ladder div b{font-size:17px}.ladder div small{display:block;color:var(--muted);font-size:13.5px;line-height:1.45}
+.ladder div.mid{border:2px solid var(--ink)}
+.excol{display:flex;flex-direction:column;gap:10px;min-height:0}.slide>.cols>.excol{justify-content:flex-start}.excol>.exgrid{flex:1;min-height:0}
+.easy{display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr));gap:8px}
+.easy .elab{writing-mode:vertical-rl;background:var(--c);color:#fff;font-weight:700;font-size:13px;letter-spacing:.1em;border-radius:8px;padding:8px 4px;text-align:center}
+.ez{display:grid;grid-template-columns:62px minmax(0,1fr) 50px;gap:7px;align-items:center;border:2px dashed color-mix(in srgb,var(--c) 70%,var(--paper));border-radius:10px;padding:6px;background:color-mix(in srgb,var(--c) 6%,var(--paper));text-decoration:none;color:var(--ink)}
+.ez:hover{border-style:solid}
+.ez .t{width:62px;height:46px;object-fit:cover;object-position:top;border-radius:4px;display:block}
+.ez b{display:block;font-size:13.5px;line-height:1.25}.ez small{display:block;font-size:11.5px;color:var(--muted);line-height:1.3}
+.ez .q{width:50px;height:50px;background:#fff;border-radius:3px}
+@media (max-width:900px){.easy{grid-template-columns:minmax(0,1fr)}.easy .elab{writing-mode:horizontal-tb}}
+/* 七種教案總覽 */
+.types7{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;flex:1;min-height:0;max-height:540px}
+.t7{display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:12px;background:color-mix(in srgb,var(--c) 10%,var(--paper));border:1px solid color-mix(in srgb,var(--c) 35%,var(--paper));text-decoration:none;color:var(--ink)}
+.t7:hover{border-color:var(--ink)}
+.t7 i{font-style:normal;font-family:var(--f-display);font-weight:900;font-size:28px;color:var(--c);line-height:1}
+.t7 b{font-size:20px}.t7 small{font-size:14px;color:var(--muted);line-height:1.5}
+.t7 .tag{align-self:flex-start;margin-top:auto;background:var(--paper)}
+@media (max-width:900px){
+  .embed{grid-template-columns:minmax(0,1fr);max-height:none}.embed iframe{height:70vh}
+  .exgrid{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:auto;max-height:none}.ex .ph{flex:none;aspect-ratio:16/10}
+  .mech,.types7{grid-template-columns:minmax(0,1fr);max-height:none}.dev{grid-template-columns:minmax(0,1fr);max-height:none}
+}
+@media (max-width:520px){.exgrid{grid-template-columns:minmax(0,1fr)}}
+</style>
+
+<header class="bar">
+  <div class="brand"><span class="mark"><i></i><i></i><i></i><i></i></span><b>PLAY × AI</b><span>玩轉世代：AI 賦能幼老代間遊戲與創意教學設計</span></div>
+  <div class="sp"></div>
+  <span class="prog" id="prog">1 / 20</span>
+  <button class="pill" id="btnToc" title="目錄 (T)">目錄</button>
+  <button class="pill" id="btnMode" title="切換逐頁／捲動">捲動閱讀</button>
+  <button class="pill" id="btnFs" title="全螢幕 (F)">全螢幕</button>
+</header>
+<div class="progress" id="bar"></div>
+
+<main class="viewport" id="vp"><div class="stage" id="stage">
+
+<!-- 1 封面 -->
+<section class="slide cover" data-title="封面">
+  <div class="confetti" aria-hidden="true">
+    <i style="left:62%;top:7%;width:46px;height:46px;background:var(--blue)"></i>
+    <i style="left:76%;top:12%;width:20px;height:20px;background:var(--lime);animation-delay:-2s"></i>
+    <i style="left:92%;top:8%;width:30px;height:30px;background:var(--mag);animation-delay:-1s"></i>
+    <i style="left:58%;top:52%;width:16px;height:16px;background:var(--mag);animation-delay:-2.5s"></i>
+    <i style="left:62%;top:84%;width:56px;height:56px;background:var(--amber);animation-delay:-3s"></i>
+    <i style="left:91%;top:84%;width:34px;height:34px;background:var(--sky);animation-delay:-1.5s"></i>
+  </div>
+  <div class="cover-grid">
+  <div class="cover-main">
+  <div class="eyebrow"><span class="sq"></span>臺中科大教師社群</div>
+  <h1><span class="en">PLAY <b>×</b> AI</span>玩轉世代</h1>
+  <p class="lede" style="font-size:24px;color:var(--ink);font-weight:900">AI 賦能幼老代間遊戲與創意教學設計</p>
+  <p class="lede">一副 1–16 數字牌、一副撲克牌，就能玩出祖孫都能玩的遊戲。再用 Gemini、ChatGPT、OpenCode、Canva，把點子做成簡報遊戲、遊戲團康、影片、音樂、動畫、紙本、桌遊、互動衛教、看圖猜謎、藝術創作十種教案。</p>
+  <div class="meta">
+    <div><small>日期</small><strong>9/30（三）</strong></div>
+    <div><small>時間</small><strong>中午</strong></div>
+    <div><small>主辦</small><strong>臺中科大教師社群</strong></div>
+    <div><small>講師</small><strong>鍾孟修 職能治療師</strong></div>
+  </div>
+  </div>
+  <div class="coverqrs">
+  <div class="coverqr"><img src="img/qr-deck.svg" alt="掃描開啟本網頁型簡報"><span><b>帶走簡報</b>mattsue1003.github.io/nutc-teacher-community</span></div>
+  </div>
+  </div>
+</section>
+<!-- 2 講師 -->
+<section class="slide" data-title="講師介紹">
+  <div class="eyebrow" style="--c:var(--blue)"><span class="sq"></span>講師</div>
+  <div class="intro">
+    <img class="intro-photo" src="img/speaker.jpg" alt="鍾孟修 職能治療師">
+    <div class="intro-bio">
+      <h2>大家好！我是鍾孟修 職能治療師</h2>
+      <div class="intro-cols">
+        <div>
+          <h3>協會與機構</h3>
+          <ul class="bio">
+            <li>社團法人台灣生活復能健康促進協會 理事長</li>
+            <li>愛迪樂有限公司（105/08）</li>
+            <li>愛迪樂居家職能治療所（107/01）</li>
+            <li>愛迪樂物理治療所（107/12）</li>
+            <li>愛迪樂中山聯合治療所（111/12）</li>
+            <li>愛迪樂新北長期照顧服務機構（108/01）</li>
+            <li>愛迪樂三重失智症據點（111/01）</li>
+            <li>新北市私立愛迪樂東湖國小社區長照機構（112/05）</li>
+            <li>銀光復能咖啡館 C 單位巷弄長照站（108/11）</li>
+            <li>五股日間照顧中心及身障日間照顧中心（115）</li>
+          </ul>
+        </div>
+        <div>
+          <h3>角色與專長</h3>
+          <ul class="bio">
+            <li>職能治療師／執行長</li>
+            <li>Homeseen 失智症遊戲包 共同創辦人</li>
+            <li>關懷小丑協會 監事</li>
+            <li>長庚大學職能治療系系友會 監事</li>
+            <li>銀髮體適能教練、皮拉提斯教練 ABC 級</li>
+            <li>認知桌遊活動遊戲設計</li>
+            <li>MAT 功能性評估國際認證</li>
+            <li>簡報遊戲化教學設計</li>
+          </ul>
+          <div class="intro-tags"><span class="tag">長照復能</span><span class="tag">銀髮體適能</span><span class="tag">認知及體智</span><span class="tag">遊戲化教學</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="introqrs">
+      <a class="fbcard site" href="https://mattsue1003.github.io/matt-intro/" target="_blank" rel="noopener">
+        <img src="img/qr-intro.svg" alt="鍾孟修 自我介紹網站 QR code">
+        <b>認識我<br>自我介紹網站</b>
+        <span class="fbbtn" style="background:var(--ink)">開啟網站 ↗</span>
+      </a>
+      <a class="fbcard" href="https://www.facebook.com/profile.php?id=100063748491881" target="_blank" rel="noopener">
+        <img src="img/qr-fb.svg" alt="鍾孟修Matt-職能治療師 粉絲專頁 QR code">
+        <b>加入粉絲專頁<br>看更多作品</b>
+        <span class="fbbtn">前往粉絲專頁 ↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+<!-- 地圖 -->
+<section class="slide" data-title="今天的地圖">
+  <div class="eyebrow" style="--c:var(--amber)"><span class="sq"></span>今天的地圖</div>
+  <h2>今天：先學會玩，再用 AI 做出十種教案</h2>
+  <nav class="agenda" aria-label="課程地圖"><a href="#s5"><span class="no" style="--c:var(--mag)">0</span><span><strong>開場：先玩再學</strong><small>猜歌、好味島、馬賽克景點，教室螢幕小工具</small></span><em>10′</em></a><a href="#s10"><span class="no" style="--c:var(--blue)">1</span><span><strong>實作①　語音輸入</strong><small>Typeless（建議裝桌機）、麥克風技巧、繁體設定</small></span><em>15′</em></a><a href="#s13"><span class="no" style="--c:var(--blue)">2</span><span><strong>實作②　Chrome 的應用</strong><small>問問 Gemini 讀資料、YouTube 讀影片</small></span><em>15′</em></a><a href="#s15"><span class="no" style="--c:var(--green)">3</span><span><strong>遊戲化教學原則</strong><small>發展階梯、四大機制、1–16 數字牌、撲克牌</small></span><em>20′</em></a><a href="#s20"><span class="no" style="--c:var(--mag)">4</span><span><strong>教案①②　簡報遊戲、遊戲團康</strong><small>Gemini Canvas 實作、傳炸彈、對對碰</small></span><em>20′</em></a><a href="#s24"><span class="no" style="--c:var(--blue)">5</span><span><strong>教案③④　簡報影片、音樂互動</strong><small>影片切段提問、節奏遊戲</small></span><em>15′</em></a><div class="brk">休息 10 分鐘</div><a href="#s26"><span class="no dk" style="--c:var(--lime)">6</span><span><strong>教案⑤⑥　動畫、紙本</strong><small>步驟動畫、ChatGPT 參考風格、Canva 魔法圖層</small></span><em>15′</em></a><a href="#s32"><span class="no" style="--c:var(--green)">7</span><span><strong>教案⑦⑧⑨　桌遊卡牌、互動衛教、看圖猜謎</strong><small>一副牌、參考設計、誰能生圖放進網頁</small></span><em>15′</em></a><a href="#s37"><span class="no" style="--c:var(--mag)">8</span><span><strong>做 PPT</strong><small>Gemini 任務、ChatGPT 工作、NotebookLM、Canva</small></span><em>10′</em></a><a href="#s41"><span class="no" style="--c:var(--ink)">9</span><span><strong>上架＋AI 代理人</strong><small>GitHub Pages、OpenCode、Antigravity、模型怎麼選</small></span><em>20′</em></a><a href="#s50"><span class="no" style="--c:var(--mag)">10</span><span><strong>教案⑩　藝術創作（最難）</strong><small>曼陀羅、纏繞畫、剪紙、上帝之眼＋藝術資料庫</small></span><em>10′</em></a><a href="#s51"><span class="no" style="--c:var(--sky)">11</span><span><strong>教案資料庫＋提示詞庫</strong><small>帶回去直接用</small></span><em>5′</em></a></nav>
+</section>
+<!-- 開始前 -->
+<section class="slide" data-title="開始前的準備">
+  <div class="eyebrow" style="--c:var(--lime)"><span class="sq"></span>開始前 5 分鐘</div>
+  <h2>先把這五件事打勾</h2>
+  <div class="cols" style="--n:2">
+    <ul class="check" id="prep">
+      <li><label><input type="checkbox" id="p1"><span><b>Chrome 登入自己的 Google 帳號</b><br><small class="muted">今天的 Gemini、YouTube、Google 表單都用這個帳號。</small></span></label></li>
+      <li><label><input type="checkbox" id="p2"><span><b>登入 ChatGPT：chatgpt.com</b><br><small class="muted">做圖、學習單、桌遊卡牌、PPT 都會用到。</small></span></label></li>
+      <li><label><input type="checkbox" id="p3"><span><b>打開 Gemini：gemini.google.com</b><br><small class="muted">做簡報遊戲、互動網頁、讀影片。</small></span></label></li>
+      <li><label><input type="checkbox" id="p4"><span><b>登入 Canva：canva.com</b><br><small class="muted">魔法圖層改字改圖，學校帳號也可以。</small></span></label></li>
+      <li><label><input type="checkbox" id="p5"><span><b>加入 LINE 學員社群</b><br><small class="muted">右下角綠色按鈕，範例與課後問題都在這裡。</small></span></label></li>
+    </ul>
+    <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+      <div class="note" style="--c:var(--blue)"><b>語音輸入</b><span>Typeless 建議<b>裝在自己的桌機或筆電</b>，打字最省力；不能安裝的電腦，用 ChatGPT、Gemini 的麥克風也可以。</span></div>
+      <div class="note"><b>操作方式</b><span>按 <span class="kbd">→</span> 下一頁、<span class="kbd">↓</span> 下一個步驟、<span class="kbd">T</span> 目錄、<span class="kbd">F</span> 全螢幕。截圖點一下可以放大，每張範例卡都能掃 QR。</span></div>
+      <div class="note" style="--c:var(--mag)"><b>今天的原則</b><span>AI 做的是<b>草稿</b>。題目、規則、衛教內容，帶到長輩和孩子面前之前，自己先玩一次、看一次。</span></div>
+      <div class="note" style="--c:var(--lime)"><b>範例都能帶走</b><span>所有範例教案都是免費網頁，手機掃 QR 就能打開，回去直接帶。</span></div>
+    </div>
+  </div>
+</section>
+<!-- 先玩一下 -->
+<section class="slide" data-title="先玩一下：猜歌、好味島、馬賽克">
+  <div class="eyebrow" style="--c:var(--mag)"><span class="sq"></span>先玩一下　掃 QR 或看大螢幕一起猜</div>
+  <h2>先當學員玩三題：老歌、家鄉味、馬賽克景點</h2>
+  <div class="exgrid" style="--m:3"><a class="ex" href="https://mattsue1003.github.io/pop-song-guess/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/pop-song-guess.jpg" alt="台灣金曲猜歌 畫面" loading="lazy"></div><div class="row"><span><b>台灣金曲猜歌</b><small>聽前奏猜歌名：選一個年代，祖孫一起搶答</small></span><img class="q" src="img/qr/pop-song-guess.svg" alt="台灣金曲猜歌 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/taiwan-taste-island/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/taiwan-taste-island.jpg" alt="台灣好味島 畫面" loading="lazy"></div><div class="row"><span><b>台灣好味島</b><small>3D 台灣島：點縣市看名產，聊家鄉味</small></span><img class="q" src="img/qr/taiwan-taste-island.svg" alt="台灣好味島 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/mosaic-animation/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/mosaic-animation.jpg" alt="馬賽克猜景點 畫面" loading="lazy"></div><div class="row"><span><b>馬賽克猜景點</b><small>馬賽克慢慢變清楚，猜台灣著名景點；也能上傳自己的圖</small></span><img class="q" src="img/qr/mosaic-animation.svg" alt="馬賽克猜景點 QR code"></div></a></div>
+  <div class="note" style="--c:var(--mag)"><b>玩完想一想</b><span>它用了哪個機制？猜歌＝線索、好味島＝連結已知、馬賽克＝線索一步一步給。等一下就教大家怎麼用 AI 做出來。</span></div>
+</section>
+<!-- 教室螢幕 -->
+<section class="slide" data-title="先體驗：教室螢幕">
+  <div class="eyebrow" style="--c:var(--sky)"><span class="sq"></span>先體驗　上課就用得到的小工具</div>
+  <h2>教室螢幕：計時、抽籤、分組，一個網頁全部搞定</h2>
+  <div class="embed">
+    <iframe src="https://mattsue1003.github.io/classroom-screen/" title="教室螢幕 Classroom Screen" loading="lazy" allow="microphone; camera; fullscreen"></iframe>
+    <aside>
+      <a class="fbcard" href="https://mattsue1003.github.io/classroom-screen/" target="_blank" rel="noopener" style="padding:14px"><img src="img/qr/classroom-screen.svg" alt="教室螢幕 QR code" style="max-width:150px"><b style="font-size:18px">手機掃描<br>或電腦開啟</b><span class="fbbtn" style="background:var(--sky)">開新視窗 ↗</span></a>
+      <div class="note" style="--c:var(--sky)"><b>試試看</b><span>點下方工具列或上方情境：計時、倒數、抽籤、分組、投票。投影到教室大螢幕就能用。</span></div>
+      <div class="note" style="--c:var(--lime)"><b>也是 AI 做的</b><span>33 個小工具，一個單一網頁，今天教的方法就做得出來。</span></div>
+    </aside>
+  </div>
+</section>
+<!-- 一題多玩 -->
+<section class="slide" data-title="先體驗：一題多玩">
+  <div class="eyebrow" style="--c:var(--c1,#E4572E)"><span class="sq"></span>先體驗　打一次題目，換 27 種玩法</div>
+  <h2>一題多玩：同一份題目，快問快答、翻牌、大富翁、賓果都能玩</h2>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,7fr) minmax(0,4fr)">
+    <a class="work" href="https://mattsue1003.github.io/one-set-many-games/" target="_blank" rel="noopener" style="height:100%"><div class="ph" style="flex:1"><img src="img/ex/one-set-many-games.jpg" alt="一題多玩 首頁：題組與 24 種玩法" loading="lazy"></div><div class="t">mattsue1003.github.io/one-set-many-games</div></a>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <a class="fbcard" href="https://mattsue1003.github.io/one-set-many-games/" target="_blank" rel="noopener" style="padding:14px"><img src="img/qr/one-set-many-games.svg" alt="一題多玩 QR code" style="max-width:150px"><b style="font-size:18px">掃描一起玩</b><span class="fbbtn" style="background:#E4572E">開啟一題多玩 ↗</span></a>
+      <ul class="keys" style="--c:#E4572E">
+        <li><i>1</i><span><b>選題組</b>：台灣水果、童玩今昔、1–16 湊 10…或打自己的題目</span></li>
+        <li><i>2</i><span><b>挑玩法</b>：27 種：搶答、配對、反應、大富翁、選邊站、少了誰</span></li>
+        <li><i>3</i><span><b>投影玩</b>：分隊計分、倒數、字可調到「特大」</span></li>
+      </ul>
+      <div class="note" style="--c:#E4572E"><b>出題</b><span>請 ChatGPT 依「題目｜答案｜錯誤選項｜分類」出 10 題，整段貼上就好。</span></div>
+    </div>
+  </div>
+</section>
+<!-- 暖身成品 -->
+<section class="slide" data-title="暖身：AI 做出的幼老教案">
+  <div class="eyebrow" style="--c:var(--mag)"><span class="sq"></span>精選作品</div>
+  <h2>這些祖孫都能玩的教案，都是用 AI 做的</h2>
+  <p class="lede">沒有寫程式背景。今天的方法：講清楚玩法 → AI 做 → 自己試玩 → 上架成網址。</p>
+  <div class="works">
+    <a class="work" href="https://mattsue1003.github.io/1-16-plus/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/1-16-plus.jpg" alt="1–16 數字卡加總挑戰" loading="lazy"></div><div class="t">1–16 數字卡加總挑戰</div><div class="k"><span>組合</span><span>投影</span></div></a>
+    <a class="work" href="https://mattsue1003.github.io/poker-icebreakers/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/poker-icebreakers.jpg" alt="撲克牌破冰" loading="lazy"></div><div class="t">撲克牌破冰 7 種玩法</div><div class="k"><span>動畫示範</span><span>抽籤器</span></div></a>
+    <a class="work" href="https://mattsue1003.github.io/order-different-slides/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/order-different-slides.jpg" alt="長者遊戲簡報生成器" loading="lazy"></div><div class="t">遊戲簡報生成器</div><div class="k"><span>8 種玩法</span><span>匯出 PPT</span></div></a>
+    <a class="work" href="https://mattsue1003.github.io/slide-game-video/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/slide-game-video.jpg" alt="簡報遊戲影片工坊" loading="lazy"></div><div class="t">簡報遊戲影片工坊</div><div class="k"><span>配樂音效</span><span>匯出 MP4</span></div></a>
+    <a class="work" href="https://mattsue1003.github.io/pop-song-guess/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/pop-song-guess.jpg" alt="台灣金曲猜歌" loading="lazy"></div><div class="t">台灣金曲猜歌</div><div class="k"><span>300 首</span><span>祖孫對唱</span></div></a>
+    <a class="work" href="https://mattsue1003.github.io/paper-cut-workshop/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/paper-cut-workshop.jpg" alt="對摺剪紙工坊" loading="lazy"></div><div class="t">對摺剪紙工坊</div><div class="k"><span>步驟動畫</span><span>A4 圖樣</span></div></a>
+    <a class="work" href="https://mattsue1003.github.io/nutrition-card-play/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/nutrition-card-play.jpg" alt="營養圖卡工坊" loading="lazy"></div><div class="t">營養圖卡工坊</div><div class="k"><span>桌遊卡牌</span><span>PDF／PPTX</span></div></a>
+    <a class="work" href="https://mattsue1003.github.io/emotion-bear-class/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/emotion-bear-class.jpg" alt="熊熊心情教室" loading="lazy"></div><div class="t">熊熊心情教室</div><div class="k"><span>幼兒情緒</span><span>互動課</span></div></a>
+  </div>
+</section>
+<!-- AI 怎麼選 -->
+<section class="slide" data-title="Gemini、ChatGPT、AI 代理人怎麼選">
+  <div class="eyebrow" style="--c:var(--ink)"><span class="sq"></span>今天會用到的工具</div>
+  <h2>Gemini、ChatGPT、AI 代理人：做什麼教案，挑哪一個</h2>
+  <div class="ai3">
+    <div class="box ai" style="--c:var(--blue)"><div class="ai-h"><h3>Gemini</h3><span>gemini.google.com</span></div>
+      <p class="ai-best">最適合：互動網頁、讀影片、做 PPT</p>
+      <ul class="bio"><li>Canvas 做簡報遊戲、音樂互動、動畫網頁</li><li>讀 YouTube，找出可以停格提問的段落</li><li>「任務」模式做有插圖的 PPT</li></ul>
+      <p class="ai3-today"><b>今天做</b>簡報遊戲、簡報影片、音樂互動、動畫、互動衛教簡報</p></div>
+    <div class="box ai" style="--c:#10A37F"><div class="ai-h"><h3>ChatGPT</h3><span>chatgpt.com</span></div>
+      <p class="ai-best">最適合：做圖、學習單、卡牌、出檔案</p>
+      <ul class="bio"><li>參考喜歡的版面，畫學習單、海報、牌卡</li><li>直接產出 Word、PDF、PPT 下載</li><li>接 Canva 外掛，做好丟進 Canva 改</li></ul>
+      <p class="ai3-today"><b>今天做</b>紙本教案、桌遊卡牌、工作模式做 PPT</p></div>
+    <div class="box ai" style="--c:var(--ink)"><div class="ai-h"><h3>代理人</h3><span>OpenCode・Antigravity</span></div>
+      <p class="ai-best">最適合：一次做完一整包</p>
+      <ul class="bio"><li>自己建資料夾、寫檔案、開瀏覽器操作</li><li>OpenCode：多家模型、有免費模型練習</li><li>Antigravity：Google 出品，內建生圖</li></ul>
+      <p class="ai3-today"><b>今天做</b>做表單、整理資料夾、蒐集資料；比較兩個怎麼選</p></div>
+  </div>
+  <div class="note" style="--c:var(--amber)"><b>再加一個 Canva</b><span>AI 做的圖，字常常改不了。Canva「魔法圖層」把字和圖拆開，改成自己的內容。三家 AI 都會出錯：規則、數字、衛教說法，帶活動前自己核對。</span></div>
+</section>
+<!-- 8 Typeless -->
+<section class="slide" data-title="實作① 語音輸入">
+  <div class="eyebrow" style="--c:var(--blue)"><span class="sq"></span>實作①　用說的</div>
+  <h2>想到教案點子，用講的就打完</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/t_typeless.jpg" data-cap="typeless.com：Mac、Windows、iPhone、Android 都有"><span class="n">1</span><div><b>下載 Typeless：建議裝在桌機</b><p>官網 typeless.com 下載安裝，用 Google 帳號登入。<b>桌機、筆電體驗最好</b>：任何輸入框（Gemini、ChatGPT、Canva、Word）都能直接講。手機同帳號，個人字典會同步。</p></div></li>
+      <li data-img="img/cv_10_typeless_steps.jpg" data-cap="第一次使用：登入、允許麥克風與輔助使用、測試"><span class="n">2</span><div><b>允許兩個權限</b><p>麥克風（聽你說話）＋輔助使用（把文字貼進任何輸入框）。設定裡把語言改成「繁體中文（台灣）」。</p></div></li>
+      <li data-img="img/cv_09_typeless.jpg" data-cap="和一般語音輸入的差別：自動去掉贅字、只留最後的意思"><span class="n">3</span><div><b>按一下快捷鍵開始講</b><p>Windows 按 <span class="kbd">右 Alt</span>、Mac 按 <span class="kbd">Fn</span>；講完再按一下，整理好的文字直接貼上。不能裝軟體的電腦：Windows 按 <span class="kbd">Win</span>＋<span class="kbd">H</span> 用內建聽寫。</p></div></li>
+      <li data-img="img/cv_09_typeless.jpg" data-cap="口述完，貼上下方提示詞，整理成一份教案"><span class="n">4</span><div><b>教案情境：把點子講出來</b><p>帶完活動、在車上想到新玩法，直接口述：對象、道具、怎麼玩、怎麼變難。回座把文字貼給 Gemini，加上下方提示詞。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="prompt"><div class="lab">提示詞・口述點子變教案<button class="copy">複製</button></div>以下是我用語音口述的活動點子，請整理成一份代間（祖孫）活動教案：
+1. 活動名稱、對象（長輩與孩子年齡）、人數、時間
+2. 道具清單
+3. 玩法步驟（一步一句）
+4. 變簡單／變難的方法各 2 個
+5. 帶領時可以說的話
+不確定的地方用【？】標出，不要加入我沒說的內容。
+口述內容：（貼上）</div>
+    </div>
+  </div>
+</section>
+<!-- 8b ChatGPT／Gemini 麥克風 -->
+<section class="slide" data-title="實作① 不用安裝：ChatGPT、Gemini 的麥克風">
+  <div class="eyebrow" style="--c:var(--blue)"><span class="sq"></span>實作①　用說的：不用安裝</div>
+  <h2>沒有 Typeless？ChatGPT、Gemini 的麥克風就能語音轉文字</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/v01_gpt_mic.jpg" data-cap="ChatGPT 輸入框右邊的麥克風＝「聽寫」（快捷鍵 Ctrl＋Shift＋D）"><span class="n">1</span><div><b>ChatGPT：按麥克風「聽寫」</b><p>按一下開始說，說完再按一下。文字會出現在輸入框，可以先修改再送出。最接近 Typeless 的用法。</p></div></li>
+      <li data-img="img/v02_gpt_voice.jpg" data-cap="藍色圓形按鈕＝「開始語音對話」：像講電話一樣一來一往"><span class="n">2</span><div><b>ChatGPT：藍色按鈕是「語音對話」</b><p>跟 AI 直接聊天，邊講邊釐清想法。聊完對話紀錄會留成文字，可以回頭複製。</p></div></li>
+      <li data-img="img/v03_gem_mic.jpg" data-cap="Gemini 輸入框右邊的麥克風＝「語音輸入」（快捷鍵 ⌘＋Shift＋D）"><span class="n">3</span><div><b>Gemini：按麥克風「語音輸入」</b><p>一樣按一下開始、再按一下結束。手機 Gemini App 的麥克風也一樣。</p></div></li>
+      <li data-img="img/v01_gpt_mic.jpg" data-cap="第一次使用時，瀏覽器會問能不能用麥克風：按「允許」"><span class="n">4</span><div><b>第一次用：允許麥克風</b><p>瀏覽器跳出詢問就按「允許」。電腦沒有麥克風，就用手機 App 練習。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="prompt"><div class="lab">提示詞・口述整理（貼在語音內容前面）<button class="copy">複製</button></div>以下是我用語音口述的內容，請：1. 去掉口語贅詞與重複，保留原意 2. 整理成條列 3. 不確定的專有名詞與數字用【？】標出 4. 全部使用繁體中文（台灣用語）。
+口述內容：</div>
+    </div>
+  </div>
+</section>
+<!-- 8c 繁體中文設定 -->
+<section class="slide" data-title="語音轉文字設定成繁體中文">
+  <div class="eyebrow" style="--c:var(--blue)"><span class="sq"></span>實作①　避免出現簡體字</div>
+  <h2>語音轉出來是簡體字？這樣設定成繁體中文</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/v05_gpt_voiceset.jpg" data-cap="ChatGPT：左下角頭像 → 設定 → 聲音 → 語言"><span class="n">1</span><div><b>ChatGPT：聲音的「語言」選「國語」</b><p>左下角頭像 → 設定 → 聲音 → 語言。不要用「自動偵測」，比較不會被認成其他語言。</p></div></li>
+      <li data-img="img/v06_gpt_lang.jpg" data-cap="下拉選單第一個是「自動偵測」，往下找到「國語」"><span class="n">2</span><div><b>在清單裡找到「國語」</b><p>清單很長，可以直接滑到「國語」。介面語言在「一般 → 語言」，選中文（台灣）。</p></div></li>
+      <li data-img="img/v07_gpt_custom.jpg" data-cap="ChatGPT：設定 → 個人化 → 自訂指示 → ChatGPT"><span class="n">3</span><div><b>ChatGPT：自訂指示寫一句話</b><p>個人化 → 自訂指示 → ChatGPT，貼上下方那句。之後每個對話都會照做。</p></div></li>
+      <li data-img="img/v08_google_lang.jpg" data-cap="myaccount.google.com/language：偏好語言「繁體中文　台灣」"><span class="n">4</span><div><b>Gemini：Google 帳戶語言設成繁體中文（台灣）</b><p>網址 myaccount.google.com/language → 偏好語言按鉛筆 → 選「繁體中文　台灣」。Gemini 的語音輸入跟著這個設定。</p></div></li>
+      <li data-img="img/v09_gem_personal.jpg" data-cap="Gemini：左下齒輪 → 個人化智慧服務 → 給 Gemini 的指令"><span class="n">5</span><div><b>Gemini：「給 Gemini 的指令」也寫一句</b><p>左下齒輪 → 個人化智慧服務 → 給 Gemini 的指令，貼上同一句話。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="prompt"><div class="lab">自訂指示（ChatGPT、Gemini 都貼）<button class="copy">複製</button></div>請一律使用繁體中文（台灣用語）回覆，包含語音聽寫整理出來的文字；不要使用簡體字。</div>
+      <div class="note" style="--c:var(--blue)"><b>手機</b><span>iPhone、Android 的鍵盤加「注音」，按注音鍵盤上的麥克風說話，轉出來就是繁體。已經出現簡體：說「請把上面轉成繁體中文，內容不要改」。</span></div>
+    </div>
+  </div>
+</section>
+<!-- 9 Chrome Gemini -->
+<section class="slide" data-title="實作② Chrome 問問 Gemini">
+  <div class="eyebrow" style="--c:var(--blue)"><span class="sq"></span>實作②　Chrome 的應用</div>
+  <h2>長文件、網頁、影片，請 Chrome 的 Gemini 幫你讀</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/cv_13_who.jpg" data-cap="WHO ICOPE 第二版：who.int/publications/b/71300"><span class="n">1</span><div><b>先打開你要讀的資料</b><p>課綱、研究報告 PDF、活動網頁、YouTube 影片都可以。用 Chrome 直接開啟，AI 讀的是官方原文，回答才有根據。（截圖示範：WHO 長者照護手冊）</p></div></li>
+      <li data-img="img/cv_12_chrome_gemini.jpg" data-cap="Chrome 右上角「問問 Gemini」：讀網頁、PDF、YouTube"><span class="n">2</span><div><b>按右上角「問問 Gemini」</b><p>Chrome 更新到最新版、登入 Google 帳號後，網址列右側會出現按鈕，右邊打開側邊欄。</p></div></li>
+      <li data-img="img/cv_14_icope_pdf_side.jpg" data-cap="左邊是 PDF，右邊直接問「重點整理」"><span class="n">3</span><div><b>問「這一份」的內容</b><p>貼上下方提示詞，請它把資料變成活動點子。回答會附頁碼，點開核對。</p></div></li>
+      <li data-img="img/cv_17_yt_gemini.jpg" data-cap="YouTube 影片也能直接問，回答附時間碼"><span class="n">4</span><div><b>YouTube 衛教影片也一樣</b><p>打開影片，問「重點整理，附時間碼」。挑出可以停格提問的片段，就是簡報影片教案的素材。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="prompt"><div class="lab">提示詞・資料變活動點子<button class="copy">複製</button></div>請只根據這份資料回答：
+1. 用 5 點整理重點，每點標出頁碼或時間碼
+2. 把這些重點變成 3 個祖孫可以一起玩的小活動（道具、玩法、帶領說法）
+資料沒有提到的，請寫「資料未提及」。</div>
+    </div>
+  </div>
+</section>
+<!-- 9a 影片：Gemini vs ChatGPT -->
+<section class="slide" data-title="實作② 讀影片：YouTube 摘要、Gemini 與 ChatGPT">
+  <div class="eyebrow" style="--c:var(--blue)"><span class="sq"></span>實作②　讀影片：簡報影片教案的第一步</div>
+  <h2>影片交給 Gemini：都是 Google，讀得懂 YouTube</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/yt01_buttons.jpg" data-cap="影片下方工具列：分享旁邊的「提問」（部分影片才有）"><span class="n">1</span><div><b>YouTube 先找「提問」按鈕</b><p>影片下方，分享、下載旁邊。有這顆就能直接在 YouTube 裡問，不用另外開 AI。</p></div></li>
+      <li data-img="img/yt02_panel.jpg" data-cap="右側跳出「問問影片」：生成影片摘要、推薦問題"><span class="n">2</span><div><b>按「生成影片摘要」</b><p>右側跳出對話框，可以點建議問題，也能自己打字問。</p></div></li>
+      <li data-img="img/yt03_summary.jpg" data-cap="摘要附時間碼，點下去直接跳到那一段"><span class="n">3</span><div><b>摘要附時間碼</b><p>點時間碼直接跳到那一段，備課只看需要的片段。</p></div></li>
+      <li data-img="img/yt04_gemini.jpg" data-cap="Gemini（3.1 Pro）：六力每一項都附時間碼，五次坐站、耳語測試都有抓到（11/11 實測）"><span class="n">4</span><div><b>Gemini：貼影片網址就能讀</b><p>逐段整理、每段附時間碼（示範影片是長者量六力）。Flash 轉圈太久時，改用 Pro 模型重問一次。</p></div></li>
+      <li data-img="img/yt05_chatgpt.jpg" data-cap="ChatGPT：同一支影片「無法取得影片畫面或字幕」，整張表都是「尚無法確認」"><span class="n">5</span><div><b>ChatGPT：讀不到影片內容</b><p>它老實說拿不到畫面與字幕，表格全寫「尚無法確認」。影片的事交給 Gemini。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="note" style="--c:var(--blue)"><b>查證：只有國外影片才有摘要？</b><span>不是。官方說明列出台灣、中文（繁體），但只開放<b>部分影片</b>。實測三支台灣衛教影片都有（Premium 帳號）。沒按鈕就把網址丟給 Gemini。</span></div>
+    </div>
+  </div>
+</section>
+<!-- 遊戲化：發展 -->
+<section class="slide" data-title="遊戲化原則：從發展看幼老">
+  <div class="eyebrow" style="--c:var(--green)"><span class="sq"></span>遊戲化教學原則①</div>
+  <h2>孩子的遊戲能力往上長，長輩的往下退：代間遊戲挑「中間那層」</h2>
+  <div class="dev">
+    <div class="ladder" style="--c:var(--sky)">
+      <p class="muted" style="font-weight:700">遊戲能力的階梯（孩子由下往上長，長輩失能時由上往下退）</p>
+      <div style="--c:var(--mag)"><i>4</i><span><b>自主、複雜規則</b><small>策略、計分、輪流出題。樂齡、能力好的長輩；國小以上孩子</small></span></div>
+      <div class="mid" style="--c:var(--amber)"><i>3</i><span><b>簡單規則</b><small>一句話講得完的規則：「湊到 10 就拿走」。主活動</small></span></div>
+      <div class="mid" style="--c:var(--green)"><i>2</i><span><b>配對、分類</b><small>找一樣的、分顏色、排大小。入門引導，3 歲孩子到認知退化長輩都能玩</small></span></div>
+      <div style="--c:var(--blue)"><i>1</i><span><b>感覺、動作</b><small>摸、拍、丟、搶。破冰暖身，所有人都能參與</small></span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <div class="box"><h3 style="color:var(--green)">代間遊戲怎麼設計</h3>
+        <ul class="bio" style="margin-top:8px;font-size:16px;gap:8px">
+          <li><b>從第 1、2 層開始</b>：祖孫一起破冰，誰都不會輸</li>
+          <li><b>主活動放第 3 層</b>：規則一句話，孩子懂、長輩也懂</li>
+          <li><b>角色互換</b>：孩子當出題老師，長輩當示範的師傅</li>
+          <li><b>同一副道具分級</b>：孩子玩難的版本、長輩玩簡單的版本，同一桌一起玩</li>
+        </ul></div>
+      <div class="cols" style="--n:2;gap:12px">
+        <div class="box fill"><b>深度運作（專注式）</b><p class="muted" style="font-size:14.5px;margin-top:4px">理解規則、做判斷、從錯誤修正。1–16 排序、湊 10。最累，一次 5–10 分鐘。</p></div>
+        <div class="box fill"><b>連結已知（發散式）</b><p class="muted" style="font-size:14.5px;margin-top:4px">接到本來就會的事：老歌、童玩、拿手菜。請長輩教孩子，最有成就感。</p></div>
+      </div>
+      <div class="note" style="--c:var(--green)"><b>帶法</b><span>連結已知暖場 → 深度運作挑戰 5–10 分鐘 → 回到連結已知收尾。</span></div>
+    </div>
+  </div>
+</section>
+<!-- 1-16 四大機制 -->
+<section class="slide" data-title="遊戲化原則：1–16 數字牌四大機制">
+  <div class="eyebrow" style="--c:var(--green)"><span class="sq"></span>遊戲化教學原則②　一副 1–16 數字牌</div>
+  <h2>四大認知遊戲機制：配對、組合、排序、線索</h2>
+  <p class="lede">4×4 的 1–16 數字牌，每個機制玩 2–3 分鐘；同一副牌分難易，祖孫同一桌玩。</p>
+  <div class="mech">
+    <div class="box" style="--c:var(--mag)"><h3>配對</h3><p><b>做法</b>　桌上排 4 張，你拿 1 張，請他找一樣的。</p><p><b>變簡單</b>　只放 2 張選。</p><p><b>變難</b>　找「比它大 1」的。</p><p class="ig"><b>代間版</b>　孫子出牌、阿嬤找；再交換。</p><p class="say">「我這張是 7，你那邊有沒有？」</p></div>
+    <div class="box" style="--c:var(--amber)"><h3>組合</h3><p><b>做法</b>　兩張牌加起來等於 10。</p><p><b>變簡單</b>　只用 1–9，先示範一組。</p><p><b>變難</b>　口字型每邊 3 張，加起來一樣大。</p><p class="ig"><b>代間版</b>　孩子算加法、長輩當檢查員。</p><p class="say">「哪兩張湊起來是 10？」</p></div>
+    <div class="box" style="--c:var(--blue)"><h3>排序</h3><p><b>做法</b>　1–8 打亂，從小排到大。</p><p><b>變簡單</b>　只用 1–5。</p><p><b>變難</b>　1–16、倒著排，或只排單數。</p><p class="ig"><b>代間版</b>　長輩排 1–8、孩子排 1–16，比誰先好。</p><p class="say">「幫我排好，我找不到 6。」</p></div>
+    <div class="box" style="--c:var(--green)"><h3>線索</h3><p><b>做法</b>　蓋 3 張，你給提示「比 10 大、是雙數」，他來猜。</p><p><b>變簡單</b>　牌面朝上，只給一個提示。</p><p><b>變難</b>　兩個以上提示，或換他出題考你。</p><p class="ig"><b>代間版</b>　孩子出提示、阿公來猜。</p><p class="say">「猜猜我藏了哪一張？」</p></div>
+  </div>
+  <div class="note" style="--c:var(--green)"><b>遊戲化四原則</b><span>一次 5–10 分鐘｜牌從少開始｜答錯不糾正，陪他再找一次｜最後一題讓他成功。</span></div>
+</section>
+<!-- 1-16 教案連結 -->
+<section class="slide" data-title="1–16 數字牌教案範例">
+  <div class="eyebrow" style="--c:var(--green)"><span class="sq"></span>遊戲化教學原則②　1–16 教案範例</div>
+  <h2>1–16 數字牌，玩出多元花樣：投影版、紙本版、摺紙版</h2>
+  <div class="exgrid" style="--m:4"><a class="ex" href="https://mattsue1003.github.io/1-16-plus/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/1-16-plus.jpg" alt="1–16 數字卡加總挑戰 畫面" loading="lazy"></div><div class="row"><span><b>1–16 數字卡加總挑戰</b><small>組合：口字型每條線加起來一樣，投影全班算</small></span><img class="q" src="img/qr/1-16-plus.svg" alt="1–16 數字卡加總挑戰 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/1-16number/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/1-16number.jpg" alt="數字排列挑戰產生器 畫面" loading="lazy"></div><div class="row"><span><b>數字排列挑戰產生器</b><small>排序：產生排列題卡，列印給每桌</small></span><img class="q" src="img/qr/1-16number.svg" alt="數字排列挑戰產生器 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/3x3numberg/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/3x3numberg.jpg" alt="數字推理大偵探（投影版） 畫面" loading="lazy"></div><div class="row"><span><b>數字推理大偵探（投影版）</b><small>組合：九宮格橫直加總一樣，大螢幕出題</small></span><img class="q" src="img/qr/3x3numberg.svg" alt="數字推理大偵探（投影版） QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/3x3number/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/3x3number.jpg" alt="數字推理大偵探（紙本版） 畫面" loading="lazy"></div><div class="row"><span><b>數字推理大偵探（紙本版）</b><small>組合：列印桌遊版，每桌一份</small></span><img class="q" src="img/qr/3x3number.svg" alt="數字推理大偵探（紙本版） QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/number-slot/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/number-slot.jpg" alt="1~16 算術密碼抽籤器 畫面" loading="lazy"></div><div class="row"><span><b>1~16 算術密碼抽籤器</b><small>組合／線索：拉霸抽數字，哪兩張湊得出來</small></span><img class="q" src="img/qr/number-slot.svg" alt="1~16 算術密碼抽籤器 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/samenumber/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/samenumber.jpg" alt="數字矩陣尋寶 畫面" loading="lazy"></div><div class="row"><span><b>數字矩陣尋寶</b><small>配對：數字矩陣找一樣的</small></span><img class="q" src="img/qr/samenumber.svg" alt="數字矩陣尋寶 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/fold-4x4-game/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/fold-4x4-game.jpg" alt="16 格數字摺紙挑戰 畫面" loading="lazy"></div><div class="row"><span><b>16 格數字摺紙挑戰</b><small>4×4 紙格摺出指定數字，練空間</small></span><img class="q" src="img/qr/fold-4x4-game.svg" alt="16 格數字摺紙挑戰 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/random/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/random.jpg" alt="數字多型態抽籤器 畫面" loading="lazy"></div><div class="row"><span><b>數字多型態抽籤器</b><small>1–16 抽籤、算式、找缺少，全螢幕投影</small></span><img class="q" src="img/qr/random.svg" alt="數字多型態抽籤器 QR code"></div></a></div>
+</section>
+<!-- 撲克 四大機制 -->
+<section class="slide" data-title="遊戲化原則：撲克牌四大機制">
+  <div class="eyebrow" style="--c:var(--green)"><span class="sq"></span>遊戲化教學原則③　一副撲克牌</div>
+  <h2>家裡都有的撲克牌：同樣四個機制，換個道具再玩一輪</h2>
+  <div class="mech">
+    <div class="box" style="--c:var(--mag)"><h3>配對</h3><p><b>做法</b>　翻開 6 張，找數字一樣的兩張湊一對。</p><p><b>變簡單</b>　只分紅色、黑色。</p><p><b>變難</b>　牌蓋著翻，記位置找一對。</p><p class="ig"><b>代間版</b>　祖孫同一隊翻牌，一人記左邊、一人記右邊。</p><p class="say">「這張 5 的好朋友在哪裡？」</p></div>
+    <div class="box" style="--c:var(--amber)"><h3>組合</h3><p><b>做法</b>　兩張加起來等於 10（A 當 1，人頭牌先拿掉）。</p><p><b>變簡單</b>　只用 A–5，湊 6。</p><p><b>變難</b>　三張湊 15。</p><p class="ig"><b>代間版</b>　長輩湊 10、孩子湊 15，同一桌一起玩。</p><p class="say">「7 要配哪一張才是 10？」</p></div>
+    <div class="box" style="--c:var(--blue)"><h3>排序</h3><p><b>做法</b>　同一花色 A–10 打亂，從小排到大。</p><p><b>變簡單</b>　只用 A–5。</p><p><b>變難</b>　抽掉一張，問少了哪一張。</p><p class="ig"><b>代間版</b>　長輩排一個花色、孩子排兩個花色。</p><p class="say">「幫我排好，我老是亂掉。」</p></div>
+    <div class="box" style="--c:var(--green)"><h3>線索</h3><p><b>做法</b>　你心裡想一張牌，他用是非題問：「紅色嗎？比 5 大嗎？」</p><p><b>變簡單</b>　桌上只留 4 張讓他猜。</p><p><b>變難</b>　換他想、你來問。</p><p class="ig"><b>代間版</b>　孩子想牌、阿嬤問，看幾題猜到。</p><p class="say">「我心裡想一張，你問我。」</p></div>
+  </div>
+  <div class="note" style="--c:var(--green)"><b>帶法</b><span>不說「我們來上課」，說「陪我玩一下牌」｜輸贏不重要，讓他多贏幾次｜長輩當師傅、孩子當出題老師。</span></div>
+</section>
+<!-- 撲克 教案連結 -->
+<section class="slide" data-title="撲克牌教案範例">
+  <div class="eyebrow" style="--c:var(--green)"><span class="sq"></span>遊戲化教學原則③　撲克牌教案範例</div>
+  <h2>一副撲克牌玩到底：破冰、資料庫、桌遊產生器</h2>
+  <div class="exgrid" style="--m:3"><a class="ex" href="https://mattsue1003.github.io/poker-icebreakers/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/poker-icebreakers.jpg" alt="撲克牌破冰 7 種玩法 畫面" loading="lazy"></div><div class="row"><span><b>撲克牌破冰 7 種玩法</b><small>四人輪流的動畫示範，看動畫就會玩</small></span><img class="q" src="img/qr/poker-icebreakers.svg" alt="撲克牌破冰 7 種玩法 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/card-games-108/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/card-games-108.jpg" alt="一副牌玩到底 畫面" loading="lazy"></div><div class="row"><span><b>一副牌玩到底</b><small>撲克牌破冰＋108 張手繪卡牌遊戲簡報</small></span><img class="q" src="img/qr/card-games-108.svg" alt="一副牌玩到底 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/poker-database/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/poker-database.jpg" alt="撲克牌玩法大全 畫面" loading="lazy"></div><div class="row"><span><b>撲克牌玩法大全</b><small>70 種玩法，文字＋影片教學</small></span><img class="q" src="img/qr/poker-database.svg" alt="撲克牌玩法大全 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/poker-dice-game/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/poker-dice-game.jpg" alt="牌與骰・玩法教案資料庫 畫面" loading="lazy"></div><div class="row"><span><b>牌與骰・玩法教案資料庫</b><small>只要撲克牌或骰子就能玩</small></span><img class="q" src="img/qr/poker-dice-game.svg" alt="牌與骰・玩法教案資料庫 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/boardgame1-13/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/boardgame1-13.jpg" alt="1–13 邏輯解碼大師 畫面" loading="lazy"></div><div class="row"><span><b>1–13 邏輯解碼大師</b><small>線索：依提示推理藏起來的牌</small></span><img class="q" src="img/qr/boardgame1-13.svg" alt="1–13 邏輯解碼大師 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/pokerrandom/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/pokerrandom.jpg" alt="撲克牌拉霸抽籤器 畫面" loading="lazy"></div><div class="row"><span><b>撲克牌拉霸抽籤器</b><small>抽牌決定題目或動作</small></span><img class="q" src="img/qr/pokerrandom.svg" alt="撲克牌拉霸抽籤器 QR code"></div></a></div>
+</section>
+<!-- 七種教案 -->
+<section class="slide" data-title="十種教案設計總覽">
+  <div class="eyebrow" style="--c:var(--ink)"><span class="sq"></span>教案設計</div>
+  <h2>十種教案：先看範例，再教你怎麼用 AI 做</h2>
+  <p class="lede">每一種都有「最簡單先上手」的入門範例＋6 個進階範例（點卡片或掃 QR 打開）、設計重點，和一段可以直接複製的提示詞。</p>
+  <div class="types7"><a class="t7" href="#s21" style="--c:var(--mag)"><i>①</i><b>簡報遊戲</b><small>投影搶答、看到就動</small><span class="tag">看範例 →</span></a><a class="t7" href="#s23" style="--c:var(--amber)"><i>②</i><b>遊戲團康</b><small>傳炸彈、對對碰、輪流</small><span class="tag">看範例 →</span></a><a class="t7" href="#s24" style="--c:var(--blue)"><i>③</i><b>簡報影片</b><small>影片切段、停格提問</small><span class="tag">看範例 →</span></a><a class="t7" href="#s25" style="--c:var(--amber)"><i>④</i><b>音樂互動</b><small>老歌、節奏、律動</small><span class="tag">看範例 →</span></a><a class="t7" href="#s26" style="--c:var(--sky)"><i>⑤</i><b>動畫</b><small>步驟動畫、反應動畫</small><span class="tag">看範例 →</span></a><a class="t7" href="#s27" style="--c:var(--lime)"><i>⑥</i><b>紙本</b><small>學習單、產生器、分級</small><span class="tag">看範例 →</span></a><a class="t7" href="#s32" style="--c:var(--green)"><i>⑦</i><b>桌遊卡牌</b><small>自己的主題做一副牌</small><span class="tag">看範例 →</span></a><a class="t7" href="#s33" style="--c:var(--mag)"><i>⑧</i><b>主題式衛教</b><small>多互動問答的網頁簡報</small><span class="tag">看範例 →</span></a><a class="t7" href="#s35" style="--c:var(--blue)"><i>⑨</i><b>看圖猜謎</b><small>動物、植物、藝人、景點</small><span class="tag">看範例 →</span></a><a class="t7" href="#s50" style="--c:var(--mag)"><i>⑩</i><b>藝術創作</b><small>曼陀羅、纏繞畫、剪紙手作</small><span class="tag">看範例 →</span></a></div>
+</section>
+<section class="slide typeslide" data-title="教案設計① 簡報遊戲" style="--c:var(--mag)">
+  <div class="eyebrow" style="--c:var(--mag)"><span class="sq"></span>教案設計 ①</div>
+  <h2>簡報遊戲：投影出來，全場一起搶答、一起動</h2>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,5fr) minmax(0,8fr)">
+    <div class="typecol">
+      <ul class="keys"><li><i>1</i><span><b>一頁一題</b>：題目大、選項少，祖孫一眼看懂</span></li><li><i>2</i><span><b>加動作</b>：答案用拍手、舉手、踏步回答，變體智遊戲</span></li><li><i>3</i><span><b>能匯出 PPT</b>：沒網路也能帶，字可以自己改</span></li></ul>
+      <div class="tools"><span class="tag">Gemini Canvas</span><span class="tag">Gemini 任務做 PPT</span><span class="tag">ChatGPT 工作模式</span></div>
+      <div class="prompt"><div class="lab">提示詞・簡報遊戲<button class="copy">複製</button></div>幫我做一個「找不同」簡報遊戲網頁，給祖孫一起玩：每頁 4 張動物圖，其中 1 張不一樣，按空白鍵翻下一題，答案出現時有音效。共 10 題，前 5 題簡單、後 5 題變難。字要大，繁體中文。</div>
+      <div class="note" style="--c:var(--mag)"><b>代間玩法</b><span>孫子按下一題、阿公阿嬤搶答；或分祖孫兩隊，答對的人帶大家做一個動作。</span></div>
+    </div>
+    <div class="excol"><div class="easy"><span class="elab">最簡單先上手</span><a class="ez" href="https://mattsue1003.github.io/arrowcolor/" target="_blank" rel="noopener"><img class="t" src="img/ex/arrowcolor.jpg" alt="箭頭方向遊戲 畫面" loading="lazy"><span><b>箭頭方向遊戲</b><small>看箭頭，手比方向</small></span><img class="q" src="img/qr/arrowcolor.svg" alt="箭頭方向遊戲 QR code"></a><a class="ez" href="https://mattsue1003.github.io/wordcolor/" target="_blank" rel="noopener"><img class="t" src="img/ex/wordcolor.jpg" alt="顏色辨識遊戲 畫面" loading="lazy"><span><b>顏色辨識遊戲</b><small>說出字的顏色</small></span><img class="q" src="img/qr/wordcolor.svg" alt="顏色辨識遊戲 QR code"></a><a class="ez" href="https://mattsue1003.github.io/differentanimal/" target="_blank" rel="noopener"><img class="t" src="img/ex/differentanimal.jpg" alt="動物符號找碴 畫面" loading="lazy"><span><b>動物符號找碴</b><small>找出不一樣的</small></span><img class="q" src="img/qr/differentanimal.svg" alt="動物符號找碴 QR code"></a></div><div class="exgrid" style="--m:3"><a class="ex" href="https://mattsue1003.github.io/order-different-slides/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/order-different-slides.jpg" alt="長者遊戲簡報生成器 畫面" loading="lazy"></div><div class="row"><span><b>長者遊戲簡報生成器</b><small>8 種玩法：規律接龍、找不同、數一數</small></span><img class="q" src="img/qr/order-different-slides.svg" alt="長者遊戲簡報生成器 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/dobble-presentation-generator/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/dobble-presentation-generator.jpg" alt="找一樣簡報生成器 畫面" loading="lazy"></div><div class="row"><span><b>找一樣簡報生成器</b><small>上傳自己的主題圖片做題目</small></span><img class="q" src="img/qr/dobble-presentation-generator.svg" alt="找一樣簡報生成器 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/judgment-ppt-game/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/judgment-ppt-game.jpg" alt="分一分 動一動 畫面" loading="lazy"></div><div class="row"><span><b>分一分 動一動</b><small>分類反應：看到就做動作</small></span><img class="q" src="img/qr/judgment-ppt-game.svg" alt="分一分 動一動 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/dance-game-slides/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/dance-game-slides.jpg" alt="九宮格跳舞機 畫面" loading="lazy"></div><div class="row"><span><b>九宮格跳舞機</b><small>跟著格子踩，簡報版跳舞機</small></span><img class="q" src="img/qr/dance-game-slides.svg" alt="九宮格跳舞機 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/arrow-slides-arm-leg/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/arrow-slides-arm-leg.jpg" alt="手忙腳亂 畫面" loading="lazy"></div><div class="row"><span><b>手忙腳亂</b><small>箭頭方向＋左右手腳反應</small></span><img class="q" src="img/qr/arrow-slides-arm-leg.svg" alt="手忙腳亂 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/3x3shapecolorg/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/3x3shapecolorg.jpg" alt="九宮格形色排排樂 畫面" loading="lazy"></div><div class="row"><span><b>九宮格形色排排樂</b><small>大螢幕出題，團體同樂</small></span><img class="q" src="img/qr/3x3shapecolorg.svg" alt="九宮格形色排排樂 QR code"></div></a></div></div>
+  </div>
+</section>
+<!-- 11 Canvas 互動網頁 -->
+<section class="slide" data-title="教案① 實作：Gemini Canvas 搶答網頁">
+  <div class="eyebrow" style="--c:var(--amber)"><span class="sq"></span>教案設計①　實作：Gemini Canvas</div>
+  <h2>Gemini Canvas：講清楚玩法，兩分鐘做出搶答遊戲</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/c01_prompt.jpg" data-cap="新對話直接描述：誰用、題目、互動、外觀"><span class="n">1</span><div><b>開新對話，描述你要的網頁</b><p>想要特定外觀，一樣先上傳喜歡的網頁截圖。寫清楚四件事：給誰用（祖孫一起玩）、內容（題目與題數）、互動（大按鈕、煙火、兩組計分）、外觀（大字、溫暖配色）。</p></div></li>
+      <li data-img="img/c02_toolbar.jpg" data-cap="Gemini 寫完程式會直接顯示預覽；上方有「程式碼／預覽／匯出／分享」"><span class="n">2</span><div><b>等它寫完，看預覽</b><p>約 1～2 分鐘。上方工具列：程式碼、預覽、匯出、分享、全螢幕。</p></div></li>
+      <li data-img="img/c03_full.jpg" data-cap="全螢幕預覽：兩隊計分、朗讀題目、選題清單"><span class="n">3</span><div><b>按全螢幕試玩</b><p>Gemini 還自己加了「朗讀題目」與「選題清單」。不要的功能直接說「拿掉朗讀」。</p></div></li>
+      <li data-img="img/c04_question.jpg" data-cap="題目用大字顯示，是／否兩個大按鈕"><span class="n">4</span><div><b>逐題檢查內容</b><p>題目的醫療說法由你把關。發現不對就說「第 3 題改成…」，它會只改那一題。</p></div></li>
+      <li data-img="img/c05_correct.jpg" data-cap="答對：彩帶動畫＋加 10 分＋一句衛教小錦囊"><span class="n">5</span><div><b>答對有煙火、有衛教重點</b><p>投影到電視就能帶活動。要帶走：按「分享」產生連結，或「匯出」程式碼，再到實作⑦上架。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="prompt"><div class="lab">提示詞・祖孫搶答網頁<button class="copy">複製</button></div>幫我做一個互動網頁：「阿公阿嬤的童年 vs 我的童年」搶答遊戲，給祖孫一起玩。10 題二選一（例：小時候玩彈珠還是玩平板？），大字、大按鈕，答完顯示一句「請阿公阿嬤分享當年」的提問，可分祖孫兩隊計分，答對放煙火。繁體中文，溫暖配色。</div>
+    </div>
+  </div>
+</section>
+<section class="slide typeslide" data-title="教案設計② 遊戲團康" style="--c:var(--amber)">
+  <div class="eyebrow" style="--c:var(--amber)"><span class="sq"></span>教案設計 ②</div>
+  <h2>遊戲團康：規則一句話，全場馬上動起來</h2>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,5fr) minmax(0,8fr)">
+    <div class="typecol">
+      <ul class="keys"><li><i>1</i><span><b>規則一句話</b>：「炸彈傳到你，說一個水果」，不用看說明書</span></li><li><i>2</i><span><b>輪流、傳遞、配對</b>：傳炸彈、翻牌對對碰、輪流抽題，人人有份</span></li><li><i>3</i><span><b>輸了也好笑</b>：懲罰是做一個動作或唱一句歌，不淘汰人</span></li></ul>
+      <div class="tools"><span class="tag">Gemini Canvas</span><span class="tag">ChatGPT 出題</span><span class="tag">教室螢幕計時</span></div>
+      <div class="prompt"><div class="lab">提示詞・傳炸彈網頁<button class="copy">複製</button></div>幫我做一個「聯想傳炸彈」團康網頁：畫面中央一顆大炸彈和一個主題（例如水果、台灣小吃、動物），按開始後倒數隨機 15–60 秒，聽到滴答聲時大家一邊傳球一邊說出符合主題的東西，時間到炸彈爆炸、有音效，拿到球的人做一個動作。主題可以自己輸入，字要大，繁體中文。</div>
+      <div class="note" style="--c:var(--amber)"><b>代間玩法</b><span>祖孫同一隊：傳炸彈時孩子說、長輩做動作；對對碰時孩子翻牌、長輩記位置。</span></div>
+    </div>
+    <div class="excol"><div class="easy"><span class="elab">最簡單先上手</span><a class="ez" href="https://mattsue1003.github.io/bombterrible/" target="_blank" rel="noopener"><img class="t" src="img/ex/bombterrible.jpg" alt="聯想傳炸彈 畫面" loading="lazy"><span><b>聯想傳炸彈</b><small>時間到就爆炸</small></span><img class="q" src="img/qr/bombterrible.svg" alt="聯想傳炸彈 QR code"></a><a class="ez" href="https://mattsue1003.github.io/memorygame/" target="_blank" rel="noopener"><img class="t" src="img/ex/memorygame.jpg" alt="圖片記憶對對碰 畫面" loading="lazy"><span><b>圖片記憶對對碰</b><small>兩張一樣就配對</small></span><img class="q" src="img/qr/memorygame.svg" alt="圖片記憶對對碰 QR code"></a><a class="ez" href="https://mattsue1003.github.io/findgame/" target="_blank" rel="noopener"><img class="t" src="img/ex/findgame.jpg" alt="圖片尋找對對碰 畫面" loading="lazy"><span><b>圖片尋找對對碰</b><small>找出一樣的圖</small></span><img class="q" src="img/qr/findgame.svg" alt="圖片尋找對對碰 QR code"></a></div><div class="exgrid" style="--m:3"><a class="ex" href="https://mattsue1003.github.io/undercover/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/undercover.jpg" alt="社區大智慧：誰是臥底 畫面" loading="lazy"></div><div class="row"><span><b>社區大智慧：誰是臥底</b><small>長輩互相猜，找出臥底</small></span><img class="q" src="img/qr/undercover.svg" alt="社區大智慧：誰是臥底 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/groupgamesquare/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/groupgamesquare.jpg" alt="長者樂活運動大富翁 畫面" loading="lazy"></div><div class="row"><span><b>長者樂活運動大富翁</b><small>擲骰走格子，格子上做運動</small></span><img class="q" src="img/qr/groupgamesquare.svg" alt="長者樂活運動大富翁 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/guesscounty/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/guesscounty.jpg" alt="猜猜我是誰・提示搶答 畫面" loading="lazy"></div><div class="row"><span><b>猜猜我是誰・提示搶答</b><small>選縣市，一個提示一個提示猜</small></span><img class="q" src="img/qr/guesscounty.svg" alt="猜猜我是誰・提示搶答 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/newyear/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/newyear.jpg" alt="新年團圓問答戳戳樂 畫面" loading="lazy"></div><div class="row"><span><b>新年團圓問答戳戳樂</b><small>戳一格，答一題</small></span><img class="q" src="img/qr/newyear.svg" alt="新年團圓問答戳戳樂 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/lightgame/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/lightgame.jpg" alt="快速點燈遊戲 畫面" loading="lazy"></div><div class="row"><span><b>快速點燈遊戲</b><small>亮哪格就拍哪格</small></span><img class="q" src="img/qr/lightgame.svg" alt="快速點燈遊戲 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/tonguetwister/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/tonguetwister.jpg" alt="繞口令抽籤 畫面" loading="lazy"></div><div class="row"><span><b>繞口令抽籤</b><small>抽到誰，誰就念</small></span><img class="q" src="img/qr/tonguetwister.svg" alt="繞口令抽籤 QR code"></div></a></div></div>
+  </div>
+</section>
+<section class="slide typeslide" data-title="教案設計③ 簡報影片" style="--c:var(--blue)">
+  <div class="eyebrow" style="--c:var(--blue)"><span class="sq"></span>教案設計 ③</div>
+  <h2>簡報影片：一段影片、一個問題，看完就聊</h2>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,5fr) minmax(0,8fr)">
+    <div class="typecol">
+      <ul class="keys"><li><i>1</i><span><b>影片切段</b>：每段 1–3 分鐘，停格就提問</span></li><li><i>2</i><span><b>先找段落</b>：YouTube 提問／Gemini 讀影片，拿到時間碼</span></li><li><i>3</i><span><b>簡報遊戲變影片</b>：加配樂音效匯出 MP4，沒有老師也能播</span></li></ul>
+      <div class="tools"><span class="tag">YouTube 提問</span><span class="tag">Gemini 讀影片</span><span class="tag">簡報遊戲影片工坊</span></div>
+      <div class="prompt"><div class="lab">提示詞・影片變停格提問教案<button class="copy">複製</button></div>這是一支（主題）影片：（貼網址）。請幫我切成 4–6 段，每段寫：時間碼、這段在講什麼、停格時問祖孫的 2 個問題（一題給孩子、一題給長輩），最後設計一個 5 分鐘的動手活動。只根據影片內容，看不到的寫「影片未提及」。</div>
+      <div class="note" style="--c:var(--blue)"><b>代間玩法</b><span>停格時先問孩子「你看到什麼」，再問長輩「你們以前也這樣嗎」，讓兩代對話。</span></div>
+    </div>
+    <div class="excol"><div class="easy"><span class="elab">最簡單先上手</span><a class="ez" href="https://mattsue1003.github.io/icopeexercise/" target="_blank" rel="noopener"><img class="t" src="img/ex/icopeexercise.jpg" alt="行動運動教學影片 畫面" loading="lazy"><span><b>行動運動教學影片</b><small>點一張卡，播一支影片</small></span><img class="q" src="img/qr/icopeexercise.svg" alt="行動運動教學影片 QR code"></a><a class="ez" href="https://mattsue1003.github.io/reablementhome/" target="_blank" rel="noopener"><img class="t" src="img/ex/reablementhome.jpg" alt="復能影音處方籤 畫面" loading="lazy"><span><b>復能影音處方籤</b><small>依部位找影片</small></span><img class="q" src="img/qr/reablementhome.svg" alt="復能影音處方籤 QR code"></a></div><div class="exgrid" style="--m:3"><a class="ex" href="https://mattsue1003.github.io/slide-game-video/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/slide-game-video.jpg" alt="簡報遊戲影片工坊 畫面" loading="lazy"></div><div class="row"><span><b>簡報遊戲影片工坊</b><small>圖文配對、相反動作，加音樂匯出 MP4</small></span><img class="q" src="img/qr/slide-game-video.svg" alt="簡報遊戲影片工坊 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/cinema-teaching-method/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/cinema-teaching-method.jpg" alt="感動短片・帶領資料庫 畫面" loading="lazy"></div><div class="row"><span><b>感動短片・帶領資料庫</b><small>17 部可討論的短片＋引導流程</small></span><img class="q" src="img/qr/cinema-teaching-method.svg" alt="感動短片・帶領資料庫 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/god-eye-lessons/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/god-eye-lessons.jpg" alt="守護家人・上帝之眼 畫面" loading="lazy"></div><div class="row"><span><b>守護家人・上帝之眼</b><small>看一段影片、做一段作品</small></span><img class="q" src="img/qr/god-eye-lessons.svg" alt="守護家人・上帝之眼 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/kokedama-lessons/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/kokedama-lessons.jpg" alt="苔玉（水苔球） 畫面" loading="lazy"></div><div class="row"><span><b>苔玉（水苔球）</b><small>園藝手作，影片段落帶領</small></span><img class="q" src="img/qr/kokedama-lessons.svg" alt="苔玉（水苔球） QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/functional-training-lesson/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/functional-training-lesson.jpg" alt="站起來才算數 畫面" loading="lazy"></div><div class="row"><span><b>站起來才算數</b><small>衛教動畫分 7 段＋互動問答</small></span><img class="q" src="img/qr/functional-training-lesson.svg" alt="站起來才算數 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/cholesterol-video-lesson/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/cholesterol-video-lesson.jpg" alt="膽固醇影片互動課 畫面" loading="lazy"></div><div class="row"><span><b>膽固醇影片互動課</b><small>9:16 影片分段＋行動卡</small></span><img class="q" src="img/qr/cholesterol-video-lesson.svg" alt="膽固醇影片互動課 QR code"></div></a></div></div>
+  </div>
+</section>
+<section class="slide typeslide" data-title="教案設計④ 音樂互動" style="--c:var(--amber)">
+  <div class="eyebrow" style="--c:var(--amber)"><span class="sq"></span>教案設計 ④</div>
+  <h2>音樂互動：老歌連結長輩、節奏帶動孩子</h2>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,5fr) minmax(0,8fr)">
+    <div class="typecol">
+      <ul class="keys"><li><i>1</i><span><b>連結已知</b>：長輩年輕時的歌，一聽就打開話匣子</span></li><li><i>2</i><span><b>跟著拍子</b>：念字、拍手、踏步，節奏就是遊戲規則</span></li><li><i>3</i><span><b>祖孫對唱</b>：阿嬤唱老歌、孫子唱兒歌，互相猜歌名</span></li></ul>
+      <div class="tools"><span class="tag">Gemini Canvas</span><span class="tag">YouTube 律動影片</span><span class="tag">ChatGPT 出題</span></div>
+      <div class="prompt"><div class="lab">提示詞・節奏遊戲網頁<button class="copy">複製</button></div>幫我做一個節奏遊戲網頁：畫面中央每拍出現一個圖片（蘋果、香蕉、西瓜、葡萄），跟著 90 BPM 的節拍器一起唸出名稱。可以調整速度（60–120 BPM）與每輪拍數，有開始／暫停大按鈕，可全螢幕投影。繁體中文，字要大。</div>
+      <div class="note" style="--c:var(--amber)"><b>代間玩法</b><span>阿嬤唱一句老歌、孫子接一句兒歌；節奏遊戲請孩子當指揮。</span></div>
+    </div>
+    <div class="excol"><div class="easy"><span class="elab">最簡單先上手</span><a class="ez" href="https://mattsue1003.github.io/musicguess/" target="_blank" rel="noopener"><img class="t" src="img/ex/musicguess.jpg" alt="音樂猜猜看 畫面" loading="lazy"><span><b>音樂猜猜看</b><small>聽前奏猜金曲</small></span><img class="q" src="img/qr/musicguess.svg" alt="音樂猜猜看 QR code"></a><a class="ez" href="https://mattsue1003.github.io/temponumber/" target="_blank" rel="noopener"><img class="t" src="img/ex/temponumber.jpg" alt="節奏挑戰 畫面" loading="lazy"><span><b>節奏挑戰</b><small>跟拍子念數字</small></span><img class="q" src="img/qr/temponumber.svg" alt="節奏挑戰 QR code"></a><a class="ez" href="https://mattsue1003.github.io/runmath/" target="_blank" rel="noopener"><img class="t" src="img/ex/runmath.jpg" alt="算數超慢跑節拍器 畫面" loading="lazy"><span><b>算數超慢跑節拍器</b><small>踏步加算數</small></span><img class="q" src="img/qr/runmath.svg" alt="算數超慢跑節拍器 QR code"></a></div><div class="exgrid" style="--m:3"><a class="ex" href="https://mattsue1003.github.io/pop-song-guess/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/pop-song-guess.jpg" alt="台灣金曲猜歌 畫面" loading="lazy"></div><div class="row"><span><b>台灣金曲猜歌</b><small>15 組 300 首，國語台語都有</small></span><img class="q" src="img/qr/pop-song-guess.svg" alt="台灣金曲猜歌 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/beatgame2/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/beatgame2.jpg" alt="節奏唸字遊戲 畫面" loading="lazy"></div><div class="row"><span><b>節奏唸字遊戲</b><small>跟著拍子唸出圖片名稱，可自己 DIY</small></span><img class="q" src="img/qr/beatgame2.svg" alt="節奏唸字遊戲 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/rhythmexercise/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/rhythmexercise.jpg" alt="長輩律動產生器 畫面" loading="lazy"></div><div class="row"><span><b>長輩律動產生器</b><small>設定 BPM，畫面出動作口令</small></span><img class="q" src="img/qr/rhythmexercise.svg" alt="長輩律動產生器 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/oldsongdance/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/oldsongdance.jpg" alt="音樂律動影片資料庫 畫面" loading="lazy"></div><div class="row"><span><b>音樂律動影片資料庫</b><small>378 支徒手律動，坐姿站姿</small></span><img class="q" src="img/qr/oldsongdance.svg" alt="音樂律動影片資料庫 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/song-lyrics-guess/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/song-lyrics-guess.jpg" alt="看歌詞猜老歌 畫面" loading="lazy"></div><div class="row"><span><b>看歌詞猜老歌</b><small>懷舊金曲 20 首</small></span><img class="q" src="img/qr/song-lyrics-guess.svg" alt="看歌詞猜老歌 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/oldsongdata/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/oldsongdata.jpg" alt="長者回憶高峰金曲 200 畫面" loading="lazy"></div><div class="row"><span><b>長者回憶高峰金曲 200</b><small>依年代找長輩年輕時的歌</small></span><img class="q" src="img/qr/oldsongdata.svg" alt="長者回憶高峰金曲 200 QR code"></div></a></div></div>
+  </div>
+</section>
+<section class="slide typeslide" data-title="教案設計⑤ 動畫" style="--c:var(--sky)">
+  <div class="eyebrow" style="--c:var(--sky)"><span class="sq"></span>教案設計 ⑤</div>
+  <h2>動畫教案：步驟一步一步動給你看</h2>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,5fr) minmax(0,8fr)">
+    <div class="typecol">
+      <ul class="keys"><li><i>1</i><span><b>步驟動畫</b>：動作一步一步出現，比看照片好懂</span></li><li><i>2</i><span><b>反應動畫</b>：看到相反詞、指令就做動作</span></li><li><i>3</i><span><b>可調速度</b>：長輩慢一點、孩子快一點，同一個畫面</span></li></ul>
+      <div class="tools"><span class="tag">Gemini Canvas</span><span class="tag">OpenCode 做一整套</span><span class="tag">ChatGPT 畫步驟圖</span></div>
+      <div class="prompt"><div class="lab">提示詞・步驟動畫網頁<button class="copy">複製</button></div>幫我做一個步驟動畫網頁：「對摺剪一顆愛心」，共 5 步（對摺、畫半邊、沿線剪、打開、裝飾）。每一步用 SVG 動畫畫出紙張和剪刀的動作，下方一行大字說明，有上一步／下一步／重播按鈕與速度調整。繁體中文。</div>
+      <div class="note" style="--c:var(--sky)"><b>代間玩法</b><span>孩子看動畫當小老師，一步一步帶阿公阿嬤做；再交換當老師。</span></div>
+    </div>
+    <div class="excol"><div class="easy"><span class="elab">最簡單先上手</span><a class="ez" href="https://mattsue1003.github.io/cognicise/" target="_blank" rel="noopener"><img class="t" src="img/ex/cognicise.jpg" alt="體智活動隨機生成器 畫面" loading="lazy"><span><b>體智活動隨機生成器</b><small>一按出一個動作</small></span><img class="q" src="img/qr/cognicise.svg" alt="體智活動隨機生成器 QR code"></a><a class="ez" href="https://mattsue1003.github.io/picturecognicise/" target="_blank" rel="noopener"><img class="t" src="img/ex/picturecognicise.jpg" alt="體智動畫產生器 畫面" loading="lazy"><span><b>體智動畫產生器</b><small>放圖片變動畫</small></span><img class="q" src="img/qr/picturecognicise.svg" alt="體智動畫產生器 QR code"></a><a class="ez" href="https://mattsue1003.github.io/cognicisealternate/" target="_blank" rel="noopener"><img class="t" src="img/ex/cognicisealternate.jpg" alt="體智交替計時器 畫面" loading="lazy"><span><b>體智交替計時器</b><small>動、停輪流計時</small></span><img class="q" src="img/qr/cognicisealternate.svg" alt="體智交替計時器 QR code"></a></div><div class="exgrid" style="--m:3"><a class="ex" href="https://mattsue1003.github.io/contrast-animation/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/contrast-animation.jpg" alt="相反詞動畫訓練 畫面" loading="lazy"></div><div class="row"><span><b>相反詞動畫訓練</b><small>設定節奏與程度，全螢幕帶團</small></span><img class="q" src="img/qr/contrast-animation.svg" alt="相反詞動畫訓練 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/cogniciseanimation/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/cogniciseanimation.jpg" alt="群體節奏自訂指令訓練器 畫面" loading="lazy"></div><div class="row"><span><b>群體節奏自訂指令訓練器</b><small>自訂指令，跟著節奏做</small></span><img class="q" src="img/qr/cogniciseanimation.svg" alt="群體節奏自訂指令訓練器 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/visual234/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/visual234.jpg" alt="視力活動檢測動畫 畫面" loading="lazy"></div><div class="row"><span><b>視力活動檢測動畫</b><small>張大眼睛一起玩</small></span><img class="q" src="img/qr/visual234.svg" alt="視力活動檢測動畫 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/cognitive-reaction-animation/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/cognitive-reaction-animation.jpg" alt="反應動作動畫產生器 畫面" loading="lazy"></div><div class="row"><span><b>反應動作動畫產生器</b><small>帶團設定，看到就做動作</small></span><img class="q" src="img/qr/cognitive-reaction-animation.svg" alt="反應動作動畫產生器 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/animationgeneration/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/animationgeneration.jpg" alt="體智活動動畫產生器 畫面" loading="lazy"></div><div class="row"><span><b>體智活動動畫產生器</b><small>動作排成動畫，跟著做</small></span><img class="q" src="img/qr/animationgeneration.svg" alt="體智活動動畫產生器 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/recovery-village/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/recovery-village.jpg" alt="芽芽村的復元任務 畫面" loading="lazy"></div><div class="row"><span><b>芽芽村的復元任務</b><small>3D 村莊闖關動畫</small></span><img class="q" src="img/qr/recovery-village.svg" alt="芽芽村的復元任務 QR code"></div></a></div></div>
+  </div>
+</section>
+<section class="slide typeslide" data-title="教案設計⑥ 紙本" style="--c:var(--lime)">
+  <div class="eyebrow" style="--c:var(--lime)"><span class="sq"></span>教案設計 ⑥</div>
+  <h2>紙本教案：印出來就能玩，回家還能繼續</h2>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,5fr) minmax(0,8fr)">
+    <div class="typecol">
+      <ul class="keys"><li><i>1</i><span><b>產生器</b>：一鍵換題目，每桌拿到不一樣的</span></li><li><i>2</i><span><b>分級</b>：同一張學習單出簡單版、挑戰版</span></li><li><i>3</i><span><b>參考版面</b>：找喜歡的學習單截圖給 AI，做出同風格</span></li></ul>
+      <div class="tools"><span class="tag">ChatGPT 做學習單</span><span class="tag">Canva 魔法圖層</span><span class="tag">Gemini 建立圖像</span></div>
+      <div class="prompt"><div class="lab">提示詞・祖孫學習單<button class="copy">複製</button></div>幫我做一張 A4 直式學習單「祖孫連連看：童玩今昔」：左邊 6 個古早童玩（陀螺、彈珠、跳房子、竹蜻蜓、尪仔標、扯鈴），右邊 6 個現在的玩具，請孩子和阿公阿嬤一起連出「玩法很像」的配對。下方留兩行「阿公阿嬤小時候怎麼玩？」給孩子記錄。字要大，繁體中文，線條清楚好列印。</div>
+      <div class="note" style="--c:var(--lime)"><b>代間玩法</b><span>同一張學習單出祖孫兩個難度。接下來 4 頁：參考風格做學習單、Canva 改字、Gemini 免費做圖。</span></div>
+    </div>
+    <div class="excol"><div class="easy"><span class="elab">最簡單先上手</span><a class="ez" href="https://mattsue1003.github.io/countnumber/" target="_blank" rel="noopener"><img class="t" src="img/ex/countnumber.jpg" alt="眼花撩亂 畫面" loading="lazy"><span><b>眼花撩亂</b><small>找一找、數一數，下載 PDF</small></span><img class="q" src="img/qr/countnumber.svg" alt="眼花撩亂 QR code"></a><a class="ez" href="https://mattsue1003.github.io/pen3x3/" target="_blank" rel="noopener"><img class="t" src="img/ex/pen3x3.jpg" alt="3×3 運筆練習 畫面" loading="lazy"><span><b>3×3 運筆練習</b><small>照著連線</small></span><img class="q" src="img/qr/pen3x3.svg" alt="3×3 運筆練習 QR code"></a><a class="ez" href="https://mattsue1003.github.io/wrongword/" target="_blank" rel="noopener"><img class="t" src="img/ex/wrongword.jpg" alt="找錯字紙本 畫面" loading="lazy"><span><b>找錯字紙本</b><small>圈出錯的字</small></span><img class="q" src="img/qr/wrongword.svg" alt="找錯字紙本 QR code"></a></div><div class="exgrid" style="--m:3"><a class="ex" href="https://mattsue1003.github.io/cognitive-playbook-generator/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/cognitive-playbook-generator.jpg" alt="認知手冊生成器 畫面" loading="lazy"></div><div class="row"><span><b>認知手冊生成器</b><small>7–28 天動腦手冊，每天一頁</small></span><img class="q" src="img/qr/cognitive-playbook-generator.svg" alt="認知手冊生成器 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/dot-copy-drawing/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/dot-copy-drawing.jpg" alt="點格仿畫・運筆練習 畫面" loading="lazy"></div><div class="row"><span><b>點格仿畫・運筆練習</b><small>333 題 A4 紙本</small></span><img class="q" src="img/qr/dot-copy-drawing.svg" alt="點格仿畫・運筆練習 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/dot-to-dot-lessons/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/dot-to-dot-lessons.jpg" alt="連點成畫 畫面" loading="lazy"></div><div class="row"><span><b>連點成畫</b><small>24 課連連看動畫＋學習單</small></span><img class="q" src="img/qr/dot-to-dot-lessons.svg" alt="連點成畫 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/new-bingo-generator/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/new-bingo-generator.jpg" alt="賓果生成器 畫面" loading="lazy"></div><div class="row"><span><b>賓果生成器</b><small>骰子賓果、主題賓果卡</small></span><img class="q" src="img/qr/new-bingo-generator.svg" alt="賓果生成器 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/crossword-puzzle-paper/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/crossword-puzzle-paper.jpg" alt="填字遊戲紙本 畫面" loading="lazy"></div><div class="row"><span><b>填字遊戲紙本</b><small>自己的詞做成 A4 填字</small></span><img class="q" src="img/qr/crossword-puzzle-paper.svg" alt="填字遊戲紙本 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/fold-4x4-game/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/fold-4x4-game.jpg" alt="16 格數字摺紙 畫面" loading="lazy"></div><div class="row"><span><b>16 格數字摺紙</b><small>4×4 紙格摺出指定數字</small></span><img class="q" src="img/qr/fold-4x4-game.svg" alt="16 格數字摺紙 QR code"></div></a></div></div>
+  </div>
+</section>
+<!-- 10a 參考風格方法 -->
+<section class="slide" data-title="方法：參考別人的 UI 風格">
+  <div class="eyebrow" style="--c:var(--amber)"><span class="sq"></span>教案設計⑥⑧　做圖、做網頁的共同方法</div>
+  <h2>先找一個你喜歡的設計，丟給 AI 參考</h2>
+  <p class="lede">不用自己想配色和版面。找一個好看的網站或海報，截圖給 AI，說清楚「參考什麼、不要什麼、換成我的內容」。</p>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,6fr) minmax(0,5fr);flex:1;min-height:0;max-height:560px">
+    <figure class="shot" style="margin:0;height:100%"><div class="frame" style="background:var(--soft)"><img src="img/ref_webtech_hero.jpg" alt="參考網站截圖：米洛科技首頁"></div><figcaption><span>參考範例：米洛科技 webtech.com.tw 首頁截圖</span></figcaption></figure>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <div class="box"><h3><span class="tag" style="background:var(--mag);color:#fff">1</span>　找參考</h3><p class="muted" style="margin-top:6px">喜歡的網站、Pinterest、Dribbble、別單位的海報。截 1～2 張最有代表性的畫面（Mac：<span class="kbd">⌘</span><span class="kbd">⇧</span><span class="kbd">4</span>，Windows：<span class="kbd">Win</span><span class="kbd">⇧</span><span class="kbd">S</span>）。</p></div>
+      <div class="box"><h3><span class="tag" style="background:var(--blue);color:#fff">2</span>　說出你看到的風格</h3><p class="muted" style="margin-top:6px">白底、粗黑字、彩色小方塊、圓角卡片、膠囊按鈕、數字統計列。講得越具體，AI 越像。</p></div>
+      <div class="box"><h3><span class="tag" style="background:var(--amber)">3</span>　換成你的內容，劃好界線</h3><p class="muted" style="margin-top:6px">「只參考配色與版面，不要畫截圖裡的人和商標」。參考風格可以，照抄別人的照片、文字、標誌不行。</p></div>
+    </div>
+  </div>
+</section>
+<!-- 10b ChatGPT 參考風格做圖 -->
+<section class="slide" data-title="教案⑥ ChatGPT 參考風格做學習單">
+  <div class="eyebrow" style="--c:var(--amber)"><span class="sq"></span>教案設計⑥　紙本：ChatGPT 參考風格</div>
+  <h2>拿一張喜歡的海報當參考，做出同風格的學習單、海報</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/ref_hpa_poster.jpg" data-cap="參考海報：國健署「從兒童發展篩檢到聯合評估 家長指南」（只參考版面與配色）"><span class="n">1</span><div><b>找一張版面喜歡的海報</b><p>右側直排大標題、粉彩配色、手繪人物、彩色小標籤、左下「溫馨提醒」。截圖或存下來。</p></div></li>
+      <li data-img="img/q02_prompt.jpg" data-cap="chatgpt.com：上傳參考海報，貼提示詞（參考什麼、不要什麼、我的內容）"><span class="n">2</span><div><b>上傳參考圖，說清楚要參考什麼</b><p>寫出你看到的版面特徵，加一句「不要複製它的文字、QR code 和標誌」，再放進自己的內容。</p></div></li>
+      <li data-img="img/m03_drawing.jpg" data-cap="約 1 分鐘：畫面顯示正在勾勒草圖"><span class="n">3</span><div><b>等它畫</b><p>約 1 分鐘。這段時間可以先想要怎麼檢查內容。</p></div></li>
+      <li data-img="img/q04_poster.jpg" data-cap="實際產出（11/11 實測）：直排標題、彩色標籤、溫馨提醒框都照參考，內容是 ICOPE"><span class="n">4</span><div><b>檢查成品</b><p>版面跟參考海報一樣好讀，內容換成自己的（示範主題：長者量六力）。逐字看：錯字、數字、說法。</p></div></li>
+      <li data-img="img/q03_viewer.jpg" data-cap="點圖片：標註、擦除、移除背景、調整大小；下方輸入要改什麼"><span class="n">5</span><div><b>小地方用 ChatGPT 改，大改到 Canva</b><p>點圖片 → 「標註」圈起來說要改什麼。要改多處文字，下一頁用 Canva 魔法圖層更快。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame" style="background:var(--soft)"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="prompt"><div class="lab">提示詞・參考海報風格<button class="copy">複製</button></div>請參考這張海報的 UI 設計（右側直排大標題、粉彩粉橘配淡藍、手繪線條人物、彩色小標籤標題、左下圓角「溫馨提醒」框），只參考版面與配色，不要複製它的文字、QR code 和標誌。幫我做一張 A4 直式活動海報：右側直排標題「祖孫遊戲日」，副標「一副牌玩一下午」。三個標籤段落：配對：找出一樣的牌；組合：兩張湊成 10；排序：從小排到大。溫馨提醒：輸贏不重要，一起笑最重要。繁體中文、字要大、不要錯字。</div>
+    </div>
+  </div>
+</section>
+<!-- 10c Canva 魔法圖層 -->
+<section class="slide" data-title="教案⑥ Canva 魔法圖層改字改圖">
+  <div class="eyebrow" style="--c:var(--amber)"><span class="sq"></span>教案設計⑥　Canva 魔法圖層</div>
+  <h2>AI 圖上的字改不了？Canva「魔法圖層」拆開來改</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/cm01_home.jpg" data-cap="canva.com 首頁：上方工具列最右邊「魔法圖層」"><span class="n">1</span><div><b>canva.com 首頁點「魔法圖層」</b><p>在「你今天要設計些什麼呢？」下方那排，往右滑就看得到。</p></div></li>
+      <li data-img="img/cm02_picker.jpg" data-cap="選取媒體：點「上傳」，選 AI 做好的海報（只支援影像）"><span class="n">2</span><div><b>上傳 AI 做好的海報</b><p>點「上傳」選圖片。處理好會跳出「你的設計已準備就緒」，按「開啟編輯器」。</p></div></li>
+      <li data-img="img/cm03_layers.jpg" data-cap="拆好了：每段文字變成可以改的文字框，人物和圖示變成獨立圖片"><span class="n">3</span><div><b>文字、圖片都拆成獨立圖層</b><p>紫框就是拆出來的每一塊。標題、標籤、說明文字都變成真的文字框，字型也幫你配好。</p></div></li>
+      <li data-img="img/cm04_text.jpg" data-cap="改字：雙擊文字框 → 全選 → 打新的字；上方可改字型、大小、顏色"><span class="n">4</span><div><b>改字：雙擊文字，直接打</b><p>把「溫馨提醒」改成你的單位要說的話。字太長就調小字級或拉寬文字框。</p></div></li>
+      <li data-img="img/cm05_select.jpg" data-cap="改圖：點一下圖片，上方出現 編輯／取代／背景移除／橡皮擦／顏色"><span class="n">5</span><div><b>改圖：點一下圖片</b><p>可以移動、放大縮小、刪除，或用「取代」換成別的圖、「橡皮擦」擦掉一部分。</p></div></li>
+      <li data-img="img/cm06_color.jpg" data-cap="圖片的顏色也能換：例如把醫院的紅十字換成單位代表色"><span class="n">6</span><div><b>換顏色，對上單位色系</b><p>上方的色票就是圖裡的顏色，點一下換成品牌色。改完右上「分享」→ 下載 PNG／PDF。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="note" style="--c:var(--amber)"><b>完成圖</b><span>溫馨提醒改成「一年一次 顧好健康」、醫院十字改成藍綠色，其他照原樣保留。點「步驟 6」右邊截圖可放大。</span></div>
+    </div>
+  </div>
+</section>
+<!-- 10d Gemini 免費版 -->
+<section class="slide" data-title="教案⑥ 免費版：Gemini 建立圖像">
+  <div class="eyebrow" style="--c:var(--amber)"><span class="sq"></span>教案設計⑥　免費替代：Gemini</div>
+  <h2>沒有付費帳號？Gemini 免費也做得到</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/cv_24_health99.jpg" data-cap="健康九九＋衛教資源：搜尋 ICOPE，先找正確內容"><span class="n">1</span><div><b>先備好正確內容</b><p>衛教圖先到國健署「健康九九＋」找正確資料，挑出 6 個重點（示範：聽力保健）。AI 負責畫，內容由你決定。</p></div></li>
+      <li data-img="img/g01_menu.jpg" data-cap="gemini.google.com → 輸入框左邊「＋」→ 建立圖像"><span class="n">2</span><div><b>打開 Gemini，點「＋」→ 建立圖像</b><p>網址 gemini.google.com。輸入框出現「圖片」標籤，就是製圖模式。</p></div></li>
+      <li data-img="img/g02b_ratio.jpg" data-cap="下方比例選單：選 3:4 直式（接近 A4）"><span class="n">3</span><div><b>選比例 3:4 直式</b><p>A4 是直式，選 3:4 最接近；做 FB 貼文選 1:1，簡報用選 16:9。</p></div></li>
+      <li data-img="img/g02_prompt.jpg" data-cap="貼上提示詞：對象、主題、風格、6 格內容、大字"><span class="n">4</span><div><b>貼上提示詞，送出</b><p>四個要素：對象（長者）、主題、風格（溫暖繪本風）、每格內容。最後加「字要大、繁體中文、不要錯字」。</p></div></li>
+      <li data-img="img/g05_poster.jpg" data-cap="實際產出：約 20 秒，6 格內容完整、繁體中文"><span class="n">5</span><div><b>檢查成品</b><p>逐字看：錯字、數字、醫療說法對不對。這張「每年做一次聽力檢查」等說法，要和衛教單張一致。</p></div></li>
+      <li data-img="img/g04_editor.jpg" data-cap="點圖片進入編輯：素描圈選、文字修改，只改局部"><span class="n">6</span><div><b>局部修改，不用整張重來</b><p>點圖片 → 用「素描」圈出要改的地方 → 說「這裡的字改成…」。改好按「儲存」或右上角下載。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="prompt"><div class="lab">提示詞・A4 衛教圖<button class="copy">複製</button></div>幫我製作一張衛教圖片，A4 直式大小，對象是長者。主題：長者聽力保健。風格：溫暖繪本風。內容分 6 格：定期檢查聽力、避免噪音、耳朵不亂挖、戴助聽器要調整、多和家人聊天、聽不清楚要說出來。字要大、繁體中文、不要錯字。</div>
+    </div>
+  </div>
+</section>
+<section class="slide typeslide" data-title="教案設計⑦ 桌遊卡牌" style="--c:var(--green)">
+  <div class="eyebrow" style="--c:var(--green)"><span class="sq"></span>教案設計 ⑦</div>
+  <h2>桌遊卡牌：自己的主題，做成一副牌</h2>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,5fr) minmax(0,8fr)">
+    <div class="typecol">
+      <ul class="keys"><li><i>1</i><span><b>一套牌、多種玩法</b>：配對、記憶翻牌、湊數、搶答都用同一副</span></li><li><i>2</i><span><b>正反面</b>：正面圖、背面字，孩子看圖、長輩讀字</span></li><li><i>3</i><span><b>真實尺寸列印</b>：A4 每頁 4／6 張，有牌背、裁切線</span></li></ul>
+      <div class="tools"><span class="tag">ChatGPT 畫卡圖</span><span class="tag">Gemini Canvas 做產生器</span><span class="tag">OpenCode 批次產生</span></div>
+      <div class="prompt"><div class="lab">提示詞・桌遊卡牌產生器<button class="copy">複製</button></div>幫我做一個卡牌產生器網頁：主題「台灣水果」，20 張卡，正面是水果圖、背面是名稱與一句冷知識。可以選 A4 每頁 4 張或 6 張，有裁切線、統一的牌背，按鈕下載 PDF。下方附 3 種玩法說明（配對、記憶翻牌、誰先湊到 3 種顏色）。繁體中文。</div>
+      <div class="note" style="--c:var(--green)"><b>代間玩法</b><span>孩子負責洗牌、發牌，長輩負責讀卡上的字；記憶翻牌時祖孫同一隊。</span></div>
+    </div>
+    <div class="excol"><div class="easy"><span class="elab">最簡單先上手</span><a class="ez" href="https://mattsue1003.github.io/dominogenerator/" target="_blank" rel="noopener"><img class="t" src="img/ex/dominogenerator.jpg" alt="骨牌產生器 畫面" loading="lazy"><span><b>骨牌產生器</b><small>點數、數字、圖案骨牌</small></span><img class="q" src="img/qr/dominogenerator.svg" alt="骨牌產生器 QR code"></a><a class="ez" href="https://mattsue1003.github.io/colorcards/" target="_blank" rel="noopener"><img class="t" src="img/ex/colorcards.jpg" alt="四色卡牌 畫面" loading="lazy"><span><b>四色卡牌</b><small>四色數字牌＋玩法</small></span><img class="q" src="img/qr/colorcards.svg" alt="四色卡牌 QR code"></a></div><div class="exgrid" style="--m:3"><a class="ex" href="https://mattsue1003.github.io/nutrition-card-play/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/nutrition-card-play.jpg" alt="營養圖卡工坊 畫面" loading="lazy"></div><div class="row"><span><b>營養圖卡工坊</b><small>自己的主題做卡牌，PDF／可改字 PPTX</small></span><img class="q" src="img/qr/nutrition-card-play.svg" alt="營養圖卡工坊 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/card-games-108/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/card-games-108.jpg" alt="108 張手繪卡牌遊戲 畫面" loading="lazy"></div><div class="row"><span><b>108 張手繪卡牌遊戲</b><small>形色棋、拉密、數字撞鐘</small></span><img class="q" src="img/qr/card-games-108.svg" alt="108 張手繪卡牌遊戲 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/poker-icebreakers/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/poker-icebreakers.jpg" alt="撲克牌破冰 7 種玩法 畫面" loading="lazy"></div><div class="row"><span><b>撲克牌破冰 7 種玩法</b><small>動畫示範＋現場抽籤器</small></span><img class="q" src="img/qr/poker-icebreakers.svg" alt="撲克牌破冰 7 種玩法 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/colored-paper-board-game/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/colored-paper-board-game.jpg" alt="雙色摺色塊 畫面" loading="lazy"></div><div class="row"><span><b>雙色摺色塊</b><small>依題目摺出指定色塊</small></span><img class="q" src="img/qr/colored-paper-board-game.svg" alt="雙色摺色塊 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/boardgame1-13/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/boardgame1-13.jpg" alt="1–13 邏輯解碼大師 畫面" loading="lazy"></div><div class="row"><span><b>1–13 邏輯解碼大師</b><small>列印桌遊版產生器</small></span><img class="q" src="img/qr/boardgame1-13.svg" alt="1–13 邏輯解碼大師 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/cardssame/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/cardssame.jpg" alt="圖卡配對拉霸機 畫面" loading="lazy"></div><div class="row"><span><b>圖卡配對拉霸機</b><small>上傳自己的圖卡做配對</small></span><img class="q" src="img/qr/cardssame.svg" alt="圖卡配對拉霸機 QR code"></div></a></div></div>
+  </div>
+</section>
+<section class="slide typeslide" data-title="教案設計⑧ 主題式衛教" style="--c:var(--mag)">
+  <div class="eyebrow" style="--c:var(--mag)"><span class="sq"></span>教案設計 ⑧</div>
+  <h2>主題式衛教：多互動問答的網頁型簡報</h2>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,5fr) minmax(0,8fr)">
+    <div class="typecol">
+      <ul class="keys"><li><i>1</i><span><b>每 3 頁一個互動</b>：猜猜看、選選看、動一動，不讓人只是聽</span></li><li><i>2</i><span><b>一個主題講透</b>：護眼、血壓、手指操、情緒</span></li><li><i>3</i><span><b>手機也能看</b>：投影上課，課後掃 QR 自己複習</span></li></ul>
+      <div class="tools"><span class="tag">Gemini Canvas</span><span class="tag">參考設計做網頁簡報</span><span class="tag">GitHub Pages 上架</span></div>
+      <div class="prompt"><div class="lab">提示詞・互動衛教簡報<button class="copy">複製</button></div>參考這兩張網站截圖的設計風格，幫我做一份 12 頁的互動網頁型簡報「保護眼睛，祖孫一起來」：每 3 頁穿插一個互動（二選一搶答、找不同、跟著做眼睛運動 30 秒倒數），左右鍵換頁，上方頁碼與進度條，最後一頁是回家任務卡。字要大，繁體中文，不要用截圖裡的人和商標。</div>
+      <div class="note" style="--c:var(--mag)"><b>代間玩法</b><span>每個互動設計成「孩子答一題、長輩分享一段」；課後掃 QR 回家再玩一次。</span></div>
+    </div>
+    <div class="excol"><div class="easy"><span class="elab">最簡單先上手</span><a class="ez" href="https://mattsue1003.github.io/45645645/" target="_blank" rel="noopener"><img class="t" src="img/ex/45645645.jpg" alt="我的餐盤小測驗 畫面" loading="lazy"><span><b>我的餐盤小測驗</b><small>幾題問答就完成</small></span><img class="q" src="img/qr/45645645.svg" alt="我的餐盤小測驗 QR code"></a><a class="ez" href="https://mattsue1003.github.io/dementia16square/" target="_blank" rel="noopener"><img class="t" src="img/ex/dementia16square.jpg" alt="腦海中的橡皮擦 畫面" loading="lazy"><span><b>腦海中的橡皮擦</b><small>16 格翻開答題</small></span><img class="q" src="img/qr/dementia16square.svg" alt="腦海中的橡皮擦 QR code"></a><a class="ez" href="https://mattsue1003.github.io/sick/" target="_blank" rel="noopener"><img class="t" src="img/ex/sick.jpg" alt="感冒保健大挑戰 畫面" loading="lazy"><span><b>感冒保健大挑戰</b><small>一題一題答</small></span><img class="q" src="img/qr/sick.svg" alt="感冒保健大挑戰 QR code"></a></div><div class="exgrid" style="--m:3"><a class="ex" href="https://mattsue1003.github.io/eye-brain-taigi/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/eye-brain-taigi.jpg" alt="目睭大腦作伙動 畫面" loading="lazy"></div><div class="row"><span><b>目睭大腦作伙動</b><small>台語護眼動腦，39 頁互動</small></span><img class="q" src="img/qr/eye-brain-taigi.svg" alt="目睭大腦作伙動 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/bp-722-guide/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/bp-722-guide.jpg" alt="血壓機講啥物？ 畫面" loading="lazy"></div><div class="row"><span><b>血壓機講啥物？</b><small>25 頁問答＋紙劇場小電影</small></span><img class="q" src="img/qr/bp-722-guide.svg" alt="血壓機講啥物？ QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/finger-brain-taigi/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/finger-brain-taigi.jpg" alt="健腦手指協調操 畫面" loading="lazy"></div><div class="row"><span><b>健腦手指協調操</b><small>手指動畫＋跟著做</small></span><img class="q" src="img/qr/finger-brain-taigi.svg" alt="健腦手指協調操 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/emotion-bear-class/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/emotion-bear-class.jpg" alt="熊熊心情教室 畫面" loading="lazy"></div><div class="row"><span><b>熊熊心情教室</b><small>3 歲幼兒情緒辨識互動課</small></span><img class="q" src="img/qr/emotion-bear-class.svg" alt="熊熊心情教室 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/essential-oil-special-kids/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/essential-oil-special-kids.jpg" alt="特殊兒精油放鬆與調節 畫面" loading="lazy"></div><div class="row"><span><b>特殊兒精油放鬆與調節</b><small>證據等級標籤＋教案連結</small></span><img class="q" src="img/qr/essential-oil-special-kids.svg" alt="特殊兒精油放鬆與調節 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/eye-health-for-seniors/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/eye-health-for-seniors.jpg" alt="眼睛顧好不吃虧 畫面" loading="lazy"></div><div class="row"><span><b>眼睛顧好不吃虧</b><small>長者視力保健互動簡報</small></span><img class="q" src="img/qr/eye-health-for-seniors.svg" alt="眼睛顧好不吃虧 QR code"></div></a></div></div>
+  </div>
+</section>
+<!-- 11a 參考設計做網頁型簡報 -->
+<section class="slide" data-title="教案⑧ 參考設計做網頁型簡報">
+  <div class="eyebrow" style="--c:var(--amber)"><span class="sq"></span>教案設計⑧　實作：參考設計做網頁型簡報</div>
+  <h2>把別人的網頁設計丟進去，生出你的網頁型簡報</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/ref_webtech_stats.jpg" data-cap="參考第 2 張：數字統計列。網頁有幾種版型，就各截一張"><span class="n">1</span><div><b>截 2 張參考畫面</b><p>封面一張、內頁一張（例如數字統計列）。版型截得越完整，AI 越抓得到。</p></div></li>
+      <li data-img="img/x00_upload.jpg" data-cap="Gemini「＋」→ 檔案：兩張截圖一起上傳"><span class="n">2</span><div><b>上傳到 Gemini（或 ChatGPT）</b><p>gemini.google.com →「＋」→ 檔案，兩張一起選。</p></div></li>
+      <li data-img="img/x01_prompt.jpg" data-cap="提示詞：參考的風格＋頁數與每頁內容＋操作方式＋不要的東西"><span class="n">3</span><div><b>說清楚每一頁要放什麼</b><p>頁數、每頁內容、換頁方式（左右鍵、頁碼、進度條），最後加「不要用截圖裡的人和商標」。</p></div></li>
+      <li data-img="img/x02_cover.jpg" data-cap="實際產出（11/11 實測）：白底粗黑字、彩色方塊、頁碼進度條、右下懸浮按鈕"><span class="n">4</span><div><b>約 2 分鐘，看預覽</b><p>按右上「全螢幕」，用左右鍵翻頁。參考網站的感覺都在，內容是你的。</p></div></li>
+      <li data-img="img/x03_stats.jpg" data-cap="第 2 頁：照著參考的數字統計列排版"><span class="n">5</span><div><b>每一頁照參考的版型排</b><p>參考圖的「數字統計列」被直接用在第 2 頁。</p></div></li>
+      <li data-img="img/x04_cards.jpg" data-cap="注意：五次起立坐下寫「≥14 秒」是 WHO 版本；國健署手冊以 12 秒為切點"><span class="n">6</span><div><b>內容一定要核對</b><p>這頁寫 14 秒，是 WHO 的切點；台灣國健署手冊用 12 秒。AI 不會主動告訴你用了哪一版，請以國健署最新手冊為準。</p></div></li>
+      <li data-img="img/c02_toolbar.jpg" data-cap="上方工具列：程式碼／匯出／分享。匯出 HTML 後到實作⑦上架"><span class="n">7</span><div><b>匯出、上架</b><p>「匯出」下載 HTML，或切到「程式碼」複製，再放上 GitHub Pages（後面會教）。今天這份簡報就是這樣做出來的。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="prompt"><div class="lab">提示詞・參考設計做網頁型簡報<button class="copy">複製</button></div>參考這兩張網站截圖的設計風格（白底、粗黑字、彩色小方塊、數字統計列、膠囊按鈕、右下角懸浮按鈕），幫我做一份 8 頁的網頁型簡報：「祖孫一起動一動」，給社區祖孫活動用。用左右鍵換頁、上方有頁碼和進度條，第 1 頁封面、第 2 頁用數字統計列、後面每頁一個祖孫小遊戲卡片，每張卡有「搶答」按鈕。繁體中文，不要用截圖裡的人和商標。</div>
+    </div>
+  </div>
+</section>
+<section class="slide typeslide" data-title="教案設計⑨ 看圖猜謎" style="--c:var(--blue)">
+  <div class="eyebrow" style="--c:var(--blue)"><span class="sq"></span>教案設計 ⑨</div>
+  <h2>看圖猜謎：一張圖，打開祖孫的話匣子</h2>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,5fr) minmax(0,8fr)">
+    <div class="typecol">
+      <ul class="keys"><li><i>1</i><span><b>從熟悉的開始</b>：動物、植物、水果、老藝人、景點</span></li><li><i>2</i><span><b>提示一步一步給</b>：先看局部、再看全圖，孩子和長輩都猜得到</span></li><li><i>3</i><span><b>猜完再聊</b>：每題附一句提問「你在哪裡看過？」</span></li></ul>
+      <div class="tools"><span class="tag">ChatGPT 生圖</span><span class="tag">Antigravity 生圖</span><span class="tag">Canva 素材</span></div>
+      <div class="prompt"><div class="lab">提示詞・看圖猜謎網頁<button class="copy">複製</button></div>幫我做一個「看圖猜台灣鳥類」網頁，給祖孫一起玩：8 題，每題先顯示模糊的圖，按「提示」逐步變清楚，三選一大按鈕，答對放煙火並顯示一句「阿公阿嬤，你在哪裡看過牠？」。圖片我會放在 images 資料夾（bird1.jpg～bird8.jpg）。繁體中文，字要大。</div>
+      <div class="note" style="--c:var(--blue)"><b>代間玩法</b><span>孩子念題目、長輩說故事：猜到鳥，就請阿公分享小時候在哪裡看過。更多：看照片猜藝人、老藝人賓果、動物足跡。</span></div>
+    </div>
+    <div class="excol"><div class="easy"><span class="elab">最簡單先上手</span><a class="ez" href="https://mattsue1003.github.io/picturesquare/" target="_blank" rel="noopener"><img class="t" src="img/ex/picturesquare.jpg" alt="見微知全 畫面" loading="lazy"><span><b>見微知全</b><small>翻格子猜圖片</small></span><img class="q" src="img/qr/picturesquare.svg" alt="見微知全 QR code"></a><a class="ez" href="https://mattsue1003.github.io/oldpicture/" target="_blank" rel="noopener"><img class="t" src="img/ex/oldpicture.jpg" alt="猜猜我是誰 畫面" loading="lazy"><span><b>猜猜我是誰</b><small>看照片猜人</small></span><img class="q" src="img/qr/oldpicture.svg" alt="猜猜我是誰 QR code"></a></div><div class="exgrid" style="--m:3"><a class="ex" href="https://mattsue1003.github.io/guess-bird/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/guess-bird.jpg" alt="台灣鳥朋友 畫面" loading="lazy"></div><div class="row"><span><b>台灣鳥朋友</b><small>互動猜鳥，附鳥類小知識</small></span><img class="q" src="img/qr/guess-bird.svg" alt="台灣鳥朋友 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/bug-guess/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/bug-guess.jpg" alt="台灣昆蟲朋友 畫面" loading="lazy"></div><div class="row"><span><b>台灣昆蟲朋友</b><small>互動猜昆蟲</small></span><img class="q" src="img/qr/bug-guess.svg" alt="台灣昆蟲朋友 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/animal-guessing/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/animal-guessing.jpg" alt="動物猜猜看 畫面" loading="lazy"></div><div class="row"><span><b>動物猜猜看</b><small>看圖猜動物互動教室</small></span><img class="q" src="img/qr/animal-guessing.svg" alt="動物猜猜看 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/flowers-guess/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/flowers-guess.jpg" alt="花花世界 畫面" loading="lazy"></div><div class="row"><span><b>花花世界</b><small>猜花、三選一、可列印圖卡</small></span><img class="q" src="img/qr/flowers-guess.svg" alt="花花世界 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/oldstar-geuss-game/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/oldstar-geuss-game.jpg" alt="老藝人懷舊猜猜看 畫面" loading="lazy"></div><div class="row"><span><b>老藝人懷舊猜猜看</b><small>30 位老藝人，團體一起猜</small></span><img class="q" src="img/qr/oldstar-geuss-game.svg" alt="老藝人懷舊猜猜看 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/landguess/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/landguess.jpg" alt="台灣景點猜謎 畫面" loading="lazy"></div><div class="row"><span><b>台灣景點猜謎</b><small>看景點猜地名，帶長輩環島</small></span><img class="q" src="img/qr/landguess.svg" alt="台灣景點猜謎 QR code"></div></a></div></div>
+  </div>
+</section>
+<!-- 生圖 -->
+<section class="slide" data-title="教案設計⑨ 圖片從哪裡來：生圖比較">
+  <div class="eyebrow" style="--c:var(--blue)"><span class="sq"></span>教案設計⑨　圖片從哪裡來</div>
+  <h2>看圖猜謎要圖：哪個 AI 能把生好的圖放進網頁？</h2>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,6fr) minmax(0,5fr)">
+    <figure class="shot" style="margin:0;height:100%"><div class="frame" style="background:var(--soft)"><img src="img/gm_bird_canvas.jpg" alt="Gemini Canvas 看圖猜鳥實測：台灣藍鵲變成簡單的向量圖"></div><figcaption><span>11/15 實測 Gemini Canvas：要它「自己生成鳥的圖片」，網頁呼叫生圖失敗，改畫成簡單的向量圖</span></figcaption></figure>
+    <div class="tbl"><table class="cmp">
+      <tr><th>工具</th><th style="color:var(--ink)">能不能生圖放進網頁</th></tr>
+      <tr><td>ChatGPT</td><td><b>可以。</b>先生圖、下載，再請它做網頁；工作模式做 PPT 會自己生圖放進去。</td></tr>
+      <tr><td>Gemini 對話</td><td><b>圖可以生</b>（Nano Banana），但 Canvas 網頁<b>放不進去</b>，常變成向量圖或空白。先在對話生圖下載，再自己放。</td></tr>
+      <tr><td>Antigravity</td><td><b>可以。</b>Google 官方說明：代理人可用 Nano Banana Pro 產生網頁圖片素材和介面草圖，存進專案再寫進網頁。</td></tr>
+      <tr><td>Claude</td><td><b>不能直接畫照片。</b>能畫 SVG 插圖；照片風的圖：接 Canva 外掛生圖，或先用 ChatGPT／Gemini 生好再上傳。</td></tr>
+      <tr><td>Canva</td><td>魔法媒體生圖、素材庫找圖，下載後放進網頁或簡報。</td></tr>
+    </table>
+    <div class="note" style="--c:var(--mag);margin-top:12px"><b>版權</b><span>老藝人、名人照片不要叫 AI 生成「像某某人」；用公開授權照片或自己拍的照片。</span></div></div>
+  </div>
+</section>
+<!-- 12a Gemini 任務做 PPT -->
+<section class="slide" data-title="做 PPT：Gemini 要用「任務」">
+  <div class="eyebrow" style="--c:var(--mag)"><span class="sq"></span>做 PPT　Gemini 任務模式</div>
+  <h2>Gemini 做 PPT：切到「任務」，不要用「對話」</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/sl01_task_prompt.jpg" data-cap="輸入框上方「對話｜任務」，點「任務」，提示詞框變成「說明要執行的任務」"><span class="n">1</span><div><b>點輸入框上方的「任務」</b><p>同一段提示詞貼進去送出。任務模式會自己規劃、找資料、畫插圖、檢查版面。</p></div></li>
+      <li data-img="img/sl03_chat_plain.jpg" data-cap="同一段提示詞用「對話」：配圖位置只有灰色方框「點擊右鍵＞變更圖片」（11/11 實測）"><span class="n">2</span><div><b>對照：用「對話」做出來很陽春</b><p>深色底、黃字，插圖全是灰色方框要你自己換。這就是「用對話做簡報很爛」的原因。</p></div></li>
+      <li data-img="img/sl02_task_done.jpg" data-cap="任務模式：約 5 分鐘，完成後給一個 presentation.pptx 檔"><span class="n">3</span><div><b>任務完成，出現 PPTX 檔</b><p>過程會顯示「Using skill: presentation-designer」等，它在照設計規則排版。約 5 分鐘。</p></div></li>
+      <li data-img="img/sl05_task_cover.jpg" data-cap="任務模式的封面：手繪風台灣長輩插圖，標題大、留白夠"><span class="n">4</span><div><b>封面：每頁都有手繪插圖</b><p>插圖是它自己畫的，配色一致，字也夠大。</p></div></li>
+      <li data-img="img/sl06_task_slide.jpg" data-cap="內頁：重點＋三條說明＋大數字「5 次」，左右排版"><span class="n">5</span><div><b>內頁版面也排好了</b><p>左邊重點、右邊插圖。文字都是 PPT 文字框，下載後可以直接改。</p></div></li>
+      <li data-img="img/sl07_task_last.jpg" data-cap="最後一頁：衛生所、特約醫療院所、社區據點、LINE @hpaicope，數字與帳號都要核對"><span class="n">6</span><div><b>最後一頁：數字和帳號要核對</b><p>「400 家」「LINE ID」這類資料，上台前到國健署網站確認一次。</p></div></li>
+      <li data-img="img/sl04_export.jpg" data-cap="右上角「匯出」→「下載」存成 .pptx，或「雲端硬碟」存成 Google 簡報"><span class="n">7</span><div><b>匯出 → 下載 PPT</b><p>打開預覽，右上角「匯出」：下載 .pptx 用 PowerPoint 改，或存到雲端硬碟用 Google 簡報改。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="prompt"><div class="lab">提示詞・任務模式做簡報<button class="copy">複製</button></div>幫我做一份 8 頁的 PowerPoint 簡報遊戲（.pptx）：「祖孫猜猜看：台灣小吃」，對象是祖孫一起玩。每頁一題、字要大，題目頁配一張溫暖插圖（台灣阿公阿嬤和孫子），下一頁公布答案；最後一頁是「回家一起做」的小任務。繁體中文，做好提供下載。</div>
+    </div>
+  </div>
+</section>
+<!-- 12b ChatGPT 工作模式做 PPT -->
+<section class="slide" data-title="做 PPT：ChatGPT 工作模式">
+  <div class="eyebrow" style="--c:var(--mag)"><span class="sq"></span>做 PPT　ChatGPT 也可以</div>
+  <h2>ChatGPT「工作」模式：查官方資料、自己生圖，再排成 PPT</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/sl08_gpt_prompt.jpg" data-cap="ChatGPT 上方「對話｜工作」，切到「工作」再貼提示詞"><span class="n">1</span><div><b>切到上方的「工作」</b><p>同一段提示詞，多加一句「每頁配一張你自己生成的插圖」。</p></div></li>
+      <li data-img="img/sl10_gpt_list.jpg" data-cap="完成後的 6 頁：每頁都有 ChatGPT 自己生成的照片風插圖（約 15 分鐘）"><span class="n">2</span><div><b>等它查資料、生圖、排版</b><p>它先查國健署資料，再生成 6 張插圖。比較久，約 15 分鐘，可以先做別的事。</p></div></li>
+      <li data-img="img/sl09_gpt_cover.jpg" data-cap="封面：照片風的台灣長輩，右上角 ⤓ 是下載"><span class="n">3</span><div><b>插圖是照片風</b><p>Gemini 偏手繪，ChatGPT 偏照片。依對象挑你喜歡的風格。</p></div></li>
+      <li data-img="img/sl11_gpt_last.jpg" data-cap="最後一頁：衛生所、縣市合作醫療機構、LINE「@hpaicope」，並提醒先打電話"><span class="n">4</span><div><b>右上角 ⤓ 下載 .pptx</b><p>預覽右上角下載。檔案也會存在左側「檔案庫」，之後找得到。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="note" style="--c:var(--mag)"><b>怎麼選</b><span>兩個都要用<b>任務／工作</b>模式，不要在一般對話裡做。Gemini 任務約 5 分鐘、手繪插圖；ChatGPT 工作約 15 分鐘、照片風插圖，內容會先查官方網站。下載後都是可以改字的 PPT。</span></div>
+    </div>
+  </div>
+</section>
+<!-- 12 NotebookLM -->
+<section class="slide" data-title="做 PPT：NotebookLM">
+  <div class="eyebrow" style="--c:var(--mag)"><span class="sq"></span>做 PPT　NotebookLM 自己做</div>
+  <h2>NotebookLM 的簡報最漂亮，但字畫在圖上，很難改</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/nlm01_studio.jpg" data-cap="NotebookLM（現在叫 Gemini Notebook）→ Studio → 簡報"><span class="n">1</span><div><b>Studio → 簡報</b><p>notebooklm.google.com 打開筆記本，切到「Studio」，點「簡報」。</p></div></li>
+      <li data-img="img/nlm02_custom.jpg" data-cap="自訂簡報：選「簡報投影片」、長度、語言，寫對象與要求"><span class="n">2</span><div><b>選「簡報投影片」，寫要求</b><p>「詳細簡報」字多適合閱讀；上台用選「簡報投影片」。約 6 分鐘。</p></div></li>
+      <li data-img="img/nlm06_new.jpg" data-cap="成品：整頁像海報一樣漂亮，但標題和插圖是同一張圖"><span class="n">3</span><div><b>成品很美，但像一張張海報</b><p>標題、插圖都畫在同一張圖上，想改一個字很麻煩。</p></div></li>
+      <li data-img="img/nlm05_pptx.jpg" data-cap="⋮ 選單：下載 PDF 文件、下載 PowerPoint (.pptx)（舊的簡報只有 PDF）"><span class="n">4</span><div><b>⋮ → 下載 PowerPoint (.pptx)</b><p>新做的簡報可以下載 PPTX；以前做的只有 PDF，重做一次就有。</p></div></li>
+      <li data-img="img/cm03_layers.jpg" data-cap="Canva 魔法圖層拆好後：每段字都變回文字框，插圖變成獨立圖片（紙本那一段的示範）"><span class="n">5</span><div><b>丟到 Canva「魔法圖層」拆開</b><p>把每頁圖片上傳 Canva → 魔法圖層，字變回可以改的文字框。比較慢，但改得動。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="note" style="--c:var(--mag)"><b>怎麼選</b><span>要<b>好改</b>：Gemini 任務 ＋ @筆記本（上一頁）。要<b>最漂亮、不太改</b>：NotebookLM 自己做，再用 Canva 魔法圖層修字。</span></div>
+    </div>
+  </div>
+</section>
+<!-- 12d ChatGPT + Canva 外掛 -->
+<section class="slide" data-title="做 PPT：ChatGPT＋Canva 外掛">
+  <div class="eyebrow" style="--c:var(--mag)"><span class="sq"></span>做 PPT　ChatGPT 的 Canva 外掛</div>
+  <h2>ChatGPT 叫 Canva 幫忙：做完一定要點開「圖層」看</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/cg01_plugin.jpg" data-cap="ChatGPT 左側「外掛程式」→ 搜尋 Canva → 連結 Canva 帳號"><span class="n">1</span><div><b>左側「外掛程式」裝 Canva</b><p>搜尋 Canva，按「＋」連結自己的 Canva 帳號（只要做一次）。</p></div></li>
+      <li data-img="img/cg02_prompt.jpg" data-cap="附上圖片，輸入 @Canva 選外掛，再說要做什麼"><span class="n">2</span><div><b>附圖，打「@Canva」再說要求</b><p>例：「把這張海報匯入 Canva，用魔法圖層把文字和插圖分開，給我編輯連結」。</p></div></li>
+      <li data-img="img/cg03_allow.jpg" data-cap="「允許 ChatGPT 使用 Canva 嗎？」會呼叫 Canva 的 Image to Design 工具"><span class="n">3</span><div><b>按「允許一次」</b><p>每次動到你的 Canva 都會先問。看清楚它要用哪個工具再按。</p></div></li>
+      <li data-img="img/cg04_result.jpg" data-cap="約 1.5 分鐘：ChatGPT 說「文字與插圖已拆分為可編輯元素」，附「開啟 Canva 編輯海報」連結"><span class="n">4</span><div><b>拿到 Canva 連結</b><p>按「開啟 Canva 編輯海報」，設計已經在你的 Canva 裡。</p></div></li>
+      <li data-img="img/cg05_layers.jpg" data-cap="實際打開：「位置 → 圖層」只有一層，整張還是一張圖片，字不能改（11/11 實測）"><span class="n">5</span><div><b>檢查：位置 → 圖層</b><p>這次 ChatGPT 說拆好了，打開只有一層圖片。遇到這樣，回到 Canva 首頁用「魔法圖層」自己拆（紙本那一段）。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="note" style="--c:var(--mag)"><b>AI 說做好了，不代表真的做好</b><span>外掛很方便：做海報、改尺寸、去背都能用說的。但結果一定要打開看。最穩的分層方法還是 Canva 首頁「魔法圖層」，慢一點，但字和圖真的拆得開。</span></div>
+    </div>
+  </div>
+</section>
+<!-- 16 GitHub -->
+<section class="slide" data-title="上架 GitHub Pages">
+  <div class="eyebrow" style="--c:var(--lime)"><span class="sq"></span>上架分享</div>
+  <h2>做好的網頁，變成一個網址</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/cv_46_gh_new.jpg" data-cap="github.com 右上角「＋」→ New repository"><span class="n">1</span><div><b>註冊 GitHub，新增儲存庫</b><p>github.com 免費註冊 → 右上角「＋」→ New repository。</p></div></li>
+      <li data-img="img/r_gh-name.jpg" data-cap="輸入英文名稱，例如 family-quiz"><span class="n">2</span><div><b>取英文名稱，選 Public</b><p>名稱會變成網址的一部分：帳號.github.io/<b>family-quiz</b>。</p></div></li>
+      <li data-img="img/cv_48_gh_quick.jpg" data-cap="建好後點「creating a new file」"><span class="n">3</span><div><b>點「creating a new file」</b><p>或「uploading an existing file」上傳 Gemini 匯出的檔案。</p></div></li>
+      <li data-img="img/cv_50_gh_paste.jpg" data-cap="檔名輸入 index.html，貼上程式碼，按 Commit changes"><span class="n">4</span><div><b>檔名 index.html，貼上程式碼</b><p>Gemini 預覽上方切到「程式碼」→ 全選複製 → 貼上 → 右上角 Commit changes。</p></div></li>
+      <li data-img="img/cv_51_gh_pages.jpg" data-cap="Settings → Pages → Branch 選 main → Save"><span class="n">5</span><div><b>Settings → Pages → main → Save</b><p>過 1～2 分鐘重新整理，上方會出現網址。</p></div></li>
+      <li data-img="img/r_gh-pages.jpg" data-cap="「Your site is live at …」：這就是可以分享的網址"><span class="n">6</span><div><b>複製網址，做成 QR 分享</b><p>傳到 LINE、印在單張上。之後改內容，只要改 index.html。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="prompt"><div class="lab">提示詞・整理成可上架的檔案<button class="copy">複製</button></div>請把這個網頁整理成一個完整的 index.html 單一檔案（CSS、JavaScript 都放在同一個檔案），可以直接上傳到 GitHub Pages。不要放任何個資。</div>
+    </div>
+  </div>
+</section>
+<!-- 16b OpenCode 選模型 -->
+<section class="slide" data-title="OpenCode：選資料夾、選模型">
+  <div class="eyebrow" style="--c:var(--ink)"><span class="sq"></span>AI 代理人 OpenCode</div>
+  <h2>OpenCode：給它一個資料夾，它自己動手做事</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/oc00_home.jpg" data-cap="OpenCode 桌面版首頁：左邊「專案」就是電腦裡的資料夾，右上「新增工作階段」"><span class="n">1</span><div><b>先開一個資料夾當「專案」</b><p>opencode.ai 下載桌面版（免費）。「專案」旁的資料夾圖示 → 選資料夾。它做的檔案和對話都跟著這個資料夾，練習請開一個新的空資料夾。</p></div></li>
+      <li data-img="img/oc04_session.jpg" data-cap="新增工作階段：下方是目前的專案資料夾，輸入框左下是模型"><span class="n">2</span><div><b>新增工作階段，像聊天一樣打字</b><p>它和 ChatGPT 不同：會真的建資料夾、改檔名、開瀏覽器操作網頁。</p></div></li>
+      <li data-img="img/oc01_models.jpg" data-cap="模型選單：標「免費」的 Big Pickle、Beam Free 等；下面是 Claude、GPT、Gemini 等付費模型（11/11 實機畫面）"><span class="n">3</span><div><b>點輸入框左下選模型</b><p>標「免費」的可以先練習。今天示範全用免費的 Big Pickle。</p></div></li>
+      <li data-img="img/oc03_variant.jpg" data-cap="思考強度 Default／Low／Medium／High／Xhigh／Max：越高越仔細，也越慢"><span class="n">4</span><div><b>思考強度：一般用 Default</b><p>整理檔案用 Default 就好；寫程式、做網頁再調高。越高越慢、用量越多。</p></div></li>
+      <li data-img="img/oc02_providers.jpg" data-cap="連線提供者：OpenCode Go（低成本訂閱）、OpenAI、Google、Anthropic 等"><span class="n">5</span><div><b>想用更強的模型：連線提供者</b><p>OpenCode Go 約每月 10 美元；ChatGPT Plus 可以直接登入連線；Claude 訂閱不能接，要另買 API。價格以官網為準。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="note" style="--c:var(--ink)"><b>模型怎麼選</b><span>練習、公開資料：<b>免費模型</b>就夠。真的個案資料：先去識別化，而且不要用免費模型，有些免費模型會拿對話去改進模型。要穩定好用：<b>OpenCode Go</b> 或連你的 ChatGPT 帳號。</span></div>
+    </div>
+  </div>
+</section>
+<!-- 16c OpenCode 做 Google 表單 -->
+<section class="slide" data-title="OpenCode 代理人做 Google 表單">
+  <div class="eyebrow" style="--c:var(--ink)"><span class="sq"></span>AI 代理人　幫你操作網頁</div>
+  <h2>活動報名表、回饋單：它自己開瀏覽器建好 Google 表單</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/oc10_form_q.jpg" data-cap="「幫我設計五題去調查活動滿意度的問卷問題」：四點量表＋笑臉，長輩好選"><span class="n">1</span><div><b>先請它設計題目</b><p>它出了 5 題四點量表（不放「普通」），還加笑臉符號方便長輩圈選。</p></div></li>
+      <li data-img="img/oc11_form_ask.jpg" data-cap="「幫我透過瀏覽器的方式到 Google 表單，把這些問題輸入到 Google 表單…」"><span class="n">2</span><div><b>叫它「用瀏覽器」做成表單</b><p>它會在右邊開內建瀏覽器，自己到 Google 表單。</p></div></li>
+      <li data-img="img/oc12_form_login.jpg" data-cap="遇到登入頁：它停下來請你自己登入，並提醒「不用把帳號密碼貼給我」"><span class="n">3</span><div><b>登入你自己來</b><p>密碼在瀏覽器裡自己輸入，不要打在對話框。登入好按「繼續」。</p></div></li>
+      <li data-img="img/oc13_form_done.jpg" data-cap="它自己點了 111 個步驟：建表單、打題目、設選項、設必填；右邊就是建好的表單"><span class="n">4</span><div><b>它自己點完 111 個步驟</b><p>標題、說明、5 題單選、1 題簡答、必填都設好了。</p></div></li>
+      <li data-img="img/oc14_form_table.jpg" data-cap="完成後列出每一題、選項、是否必填，附編輯連結"><span class="n">5</span><div><b>回報清單，對照檢查</b><p>它把做了什麼列成表，對照右邊的表單看一次。</p></div></li>
+      <li data-img="img/oc15_form_publish.jpg" data-cap="卡在最後「發布」：內建瀏覽器的發布視窗跑不出來，請使用者自己按；並提醒「每人限填一次」會要求填寫者登入"><span class="n">6</span><div><b>最後的「發布」自己按</b><p>它老實說卡住的地方。還提醒：設「每人限填一次」，長輩就得登入 Google 才能填。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="prompt"><div class="lab">提示詞・代理人做表單<button class="copy">複製</button></div>幫我透過瀏覽器到 Google 表單，把上面的題目做成一份表單：標題「（活動名稱）滿意度調查」，第 1–5 題單選必填，第 6 題簡答選填。需要登入時停下來讓我自己登入；做完把每一題列成表，附編輯連結。</div>
+    </div>
+  </div>
+</section>
+<!-- 16d OpenCode 整理資料夾 -->
+<section class="slide" data-title="OpenCode 代理人整理資料夾">
+  <div class="eyebrow" style="--c:var(--ink)"><span class="sq"></span>AI 代理人　幫你整理教案資料夾</div>
+  <h2>亂七八糟的資料夾，交給它分類、改檔名、做清單</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/oc20_prompt.jpg" data-cap="開一個放了 20 個雜亂檔案的資料夾（虛擬資料），說清楚分類方式和規則"><span class="n">1</span><div><b>說清楚分類和規則</b><p>要分哪幾類、檔名格式、重複檔怎麼處理，最後一句「動手前先列計畫給我確認」。</p></div></li>
+      <li data-img="img/oc21_plan.jpg" data-cap="動手前先列出計畫：每個檔案 → 哪一類 → 新檔名"><span class="n">2</span><div><b>它先列計畫，還沒動檔案</b><p>每個檔案要搬去哪、改成什麼名字，一目了然。</p></div></li>
+      <li data-img="img/oc22_ask.jpg" data-cap="拿不定的地方用選擇題問你：日期格式要 20251105 還是 2025-11-05"><span class="n">3</span><div><b>拿不定的地方，它用選擇題問</b><p>共問了 4 題，每題都有建議選項，點一點就好。</p></div></li>
+      <li data-img="img/oc23_privacy.jpg" data-cap="第 4 題主動提醒：「通訊錄含個資，建議另行保管」"><span class="n">4</span><div><b>主動提醒個資</b><p>它看到「長輩通訊錄」，提醒含個資要另外保管。</p></div></li>
+      <li data-img="img/oc24_done.jpg" data-cap="完成：8 個資料夾＋整理清單.md，20 個檔案全部歸位；舊版海報放進「_舊版」沒有刪（約 4 分鐘）"><span class="n">5</span><div><b>完成：8 類資料夾＋整理清單</b><p>20 個檔案都在，舊版海報放「_舊版」沒刪。每個檔案「原檔名 → 新位置」都記在清單裡。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="prompt"><div class="lab">提示詞・整理資料夾<button class="copy">複製</button></div>這個資料夾很亂，請幫我整理：依用途分成子資料夾（教案、學習單、簡報、活動照片、簽到表、核銷單據、參考資料、其他）；檔名統一成「日期_內容」；重複的版本只留最新版，舊版放進「_舊版」不要刪；最後做一份「整理清單.md」寫每個檔案搬到哪裡。動手前先列計畫給我確認。</div>
+    </div>
+  </div>
+</section>
+<!-- 16e OpenCode 蒐集資料 -->
+<section class="slide" data-title="OpenCode 代理人蒐集資料">
+  <div class="eyebrow" style="--c:var(--ink)"><span class="sq"></span>AI 代理人　幫你上網蒐集資料</div>
+  <h2>上網查、逐頁核對，整理成 Excel，每一項附來源</h2>
+  <div class="stepper" data-stepper>
+    <ol class="steps">
+      <li data-img="img/oc30_prompt.jpg" data-cap="說清楚要查哪些欄位、只用 gov.tw、附來源網址、查不到寫「查無資料」"><span class="n">1</span><div><b>說清楚：查什麼、去哪查、查不到怎麼辦</b><p>「只用政府網站」「每項附來源」「查不到寫查無資料，不要猜」這三句最重要。（示範：查基隆市長者功能評估資訊）</p></div></li>
+      <li data-img="img/oc31_search.jpg" data-cap="它在右邊的內建瀏覽器自己搜尋，打開衛福部國健署、基隆市衛生局的網頁和 PDF"><span class="n">2</span><div><b>它自己開瀏覽器搜尋、讀網頁</b><p>一次開十幾個分頁，連 PDF 計畫書都會打開讀。</p></div></li>
+      <li data-img="img/oc32_verify.jpg" data-cap="寫檔案前先核對：哪些是計畫明文、哪些查不到、分機出自哪一份公告"><span class="n">3</span><div><b>寫之前，先逐項核對</b><p>例如分機號碼出自 114 年活動公告，它會註明「如有異動請撥總機」。</p></div></li>
+      <li data-img="img/oc33_result.jpg" data-cap="五項核心資訊：1 年 1 次、32 家合作院所、衛生局 (02) 2423-0181；「要帶什麼」寫查無資料"><span class="n">4</span><div><b>查不到的，老實寫「查無資料」</b><p>「要帶什麼」官方沒寫，它就不編。32 家院所名單、電話都抄自衛生局網頁。</p></div></li>
+      <li data-img="img/oc34_excel.jpg" data-cap="Excel 4 個工作表：服務資訊、32 家評估院所（可篩選）、行政區統計、10 個官方來源（約 15 分鐘）"><span class="n">5</span><div><b>交出 Excel＋說明檔</b><p>院所名單可以依行政區篩選，來源網址點了就開。交出去前，挑兩三筆自己點來源對一下。</p></div></li>
+    </ol>
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <figure class="shot" style="flex:1"><div class="stepbar"></div><div class="frame"><img alt=""></div><figcaption><span class="cap"></span><span class="hint">↓ 下一步</span></figcaption></figure>
+      <div class="prompt"><div class="lab">提示詞・代理人蒐集資料<button class="copy">複製</button></div>幫我上網蒐集「（縣市）」可以辦祖孫代間活動的地點與資源：社區關懷據點、樂齡學習中心、公共圖書館，以及代間活動補助計畫。只用政府網站（gov.tw），每一項附名稱、地址、電話、來源網址。整理成「資料蒐集/（縣市）代間活動資源.md」和一份 Excel 表。查不到的寫「查無資料」，不要猜。</div>
+    </div>
+  </div>
+</section>
+<!-- Antigravity 比較 -->
+<section class="slide" data-title="Antigravity 和 OpenCode 差在哪">
+  <div class="eyebrow" style="--c:#1A73E8"><span class="sq"></span>AI 代理人　Google Antigravity</div>
+  <h2>Antigravity vs OpenCode：都是代理人，差在哪？</h2>
+  <div class="tbl"><table class="cmp">
+    <tr><th></th><th>Antigravity（Google）</th><th>OpenCode（開源）</th></tr>
+    <tr><td>下載</td><td>antigravity.google/download，Mac／Windows／Linux</td><td>opencode.ai，桌面版免費</td></tr>
+    <tr><td>登入</td><td>個人 Google 帳號（18 歲以上）；學校／公司帳號要管理員開放</td><td>不用帳號就能用免費模型</td></tr>
+    <tr><td>費用</td><td>免費（每週額度）；Google AI Pro 每月 19.99 美元額度較多</td><td>免費模型；OpenCode Go 約 10 美元，或接 ChatGPT 帳號</td></tr>
+    <tr><td>模型</td><td>Gemini 4 系列；付費方案另有 Claude 5.5</td><td>多家都能接：免費模型、GPT、Claude、Gemini</td></tr>
+    <tr><td>操作感</td><td><b>多個代理人同時做</b>、排程（Automations）、做事前先給計畫、做完附截圖和錄影給你看</td><td>一個資料夾一個專案，像聊天一樣下指令</td></tr>
+    <tr><td>瀏覽器</td><td>內建瀏覽器代理人，自己點網頁、測試成品</td><td>內建瀏覽器（實測自己點 111 步做好 Google 表單）</td></tr>
+    <tr><td>生圖</td><td><b>內建 Nano Banana</b>：網頁圖片、介面草圖直接生</td><td>沒有內建，要另外接</td></tr>
+    <tr><td>適合</td><td>做有圖片的網頁、簡報遊戲；想要設計流暢、一鍵 Google 登入</td><td>想比較多家模型、用免費模型練習</td></tr>
+  </table></div>
+  <div class="note" style="--c:#1A73E8"><b>結論</b><span>你記得沒錯：Antigravity 在<b>代理人操作</b>（多工、計畫、截圖驗收）和<b>設計流程</b>（生圖、看草圖再寫網頁）比較順。個案資料兩個都一樣：先去識別化。方案與模型每個月在變，以下載當天畫面為準。</span></div>
+</section>
+<!-- 三家代理人 -->
+<section class="slide" data-title="Antigravity、ChatGPT、Claude 都能當代理人嗎">
+  <div class="eyebrow" style="--c:var(--ink)"><span class="sq"></span>AI 代理人　三家比一比</div>
+  <h2>Antigravity、ChatGPT、Claude：三家都能當代理人，入口不一樣</h2>
+  <div class="tbl"><table class="cmp">
+    <tr><th></th><th>Antigravity（Google）</th><th style="color:#10A37F">ChatGPT（OpenAI）</th><th style="color:#C2410C">Claude（Anthropic）</th></tr>
+    <tr><td>入口</td><td>Antigravity App（要下載）</td><td>對話框上方切「工作」；電腦版 App 裡的 Codex</td><td>Claude 電腦版 App（Cowork）、Claude in Chrome 外掛、Claude Code</td></tr>
+    <tr><td>能幫你做</td><td>多個代理人同時做；建資料夾、寫網頁；內建瀏覽器測試；內建生圖</td><td>「工作」：長任務、查資料、做出 Word／Excel／PPT 成品；Codex：在 Mac 上操作 App</td><td>讀寫電腦裡的資料夾、用瀏覽器、操作電腦上的 App（測試版，每個 App 先問你）</td></tr>
+    <tr><td>網頁登入</td><td>App 用內建瀏覽器；也能接你自己的 Chrome</td><td>「工作」用雲端瀏覽器，<b>不能</b>用你已登入的網站（舊的「代理人模式」已停用）</td><td>Chrome 外掛在<b>你自己的</b> Chrome 裡操作，已登入的網站也行；銀行、健保等敏感網站不要交給它</td></tr>
+    <tr><td>費用</td><td>免費版有每週額度</td><td>依方案，以自己帳號畫面為準</td><td>Cowork、Chrome 外掛要<b>付費方案</b>（Pro 起）</td></tr>
+    <tr><td>最適合</td><td>做有圖片的網頁、遊戲教案</td><td>要一份可以交出去的檔案</td><td>整理電腦裡的教案、在瀏覽器裡代辦；這份簡報就是用 Claude 電腦版做的</td></tr>
+  </table></div>
+  <div class="note" style="--c:var(--ink)"><b>共同原則</b><span>代理人會真的動你的檔案和帳號：先給一個<b>練習用資料夾</b>、要它<b>先列計畫</b>、登入和付款<b>自己來</b>、做完<b>自己驗收</b>。功能和方案每個月在變（11/15 查證）。</span></div>
+</section>
+<!-- Antigravity 畫面 -->
+<section class="slide" data-title="Antigravity 下載與畫面">
+  <div class="eyebrow" style="--c:#1A73E8"><span class="sq"></span>AI 代理人　Google Antigravity</div>
+  <h2>下載 Antigravity：左邊管專案，下面選模型就開工</h2>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,7fr) minmax(0,4fr)">
+    <figure class="shot" style="margin:0;height:100%"><div class="frame"><img src="img/ag01_home.jpg" alt="Antigravity 主畫面：左側新對話、Automations、Projects，下方輸入框與模型選單"></div><figcaption><span>Antigravity 實機畫面（11/15）：正在做「台灣流行歌曲猜歌遊戲網頁」</span></figcaption></figure>
+    <ul class="keys" style="--c:#1A73E8">
+      <li><i>1</i><span><b>下載安裝</b>：antigravity.google/download，用個人 Google 帳號登入。<b>建議裝在桌機</b>。</span></li>
+      <li><i>2</i><span><b>New Conversation</b>：像聊天一樣說要做什麼，它會先列計畫。</span></li>
+      <li><i>3</i><span><b>Projects</b>：選一個資料夾，做好的檔案都存在這裡。</span></li>
+      <li><i>4</i><span><b>選模型</b>：輸入框左下（畫面是 Gemini 4 Argon），下一頁教怎麼選。</span></li>
+      <li><i>5</i><span><b>Default</b>：權限模式，執行指令前會問你；新手不要改成全自動。</span></li>
+      <li><i>6</i><span><b>Automations</b>：排程，例如每週一自動整理活動照片。</span></li>
+    </ul>
+  </div>
+</section>
+<!-- 模型怎麼選 -->
+<section class="slide" data-title="模型怎麼選：日常、代理人、設計">
+  <div class="eyebrow" style="--c:var(--ink)"><span class="sq"></span>模型怎麼選</div>
+  <h2>Flash 快但粗：做網頁、當代理人，要換強一點的模型</h2>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,4fr) minmax(0,7fr)">
+    <figure class="shot" style="margin:0;height:100%"><div class="frame" style="background:#0F1012"><img src="img/gm_models.jpg" alt="Gemini 模型選單：3.5 Flash-Lite、4 Hydrogen、3.1 Pro、4 Argon、4 Carbon"></div><figcaption><span>Gemini 網頁版模型選單（11/15 實機）</span></figcaption></figure>
+    <div class="tbl"><table class="cmp">
+      <tr><th>要做什麼</th><th style="color:var(--ink)">建議</th></tr>
+      <tr><td>改字、翻譯</td><td>Flash／Flash-Lite（快速解答）就夠。</td></tr>
+      <tr><td>出題、教案草稿</td><td>Gemini 4 Hydrogen（預設）、ChatGPT 預設模型。</td></tr>
+      <tr><td>讀影片、查資料</td><td>Gemini 3.1 Pro（深度研究）；實測 Flash 讀 YouTube 曾卡住不回。</td></tr>
+      <tr><td>做互動網頁、簡報遊戲</td><td>Gemini 4 Argon（程式碼與分析）；Antigravity 也選 Argon。</td></tr>
+      <tr><td>AI 代理人多步驟</td><td>Antigravity：Argon，或付費方案的 Claude 5.5。OpenCode：免費模型只練習，正式用接 ChatGPT 或 OpenCode Go。</td></tr>
+      <tr><td>好看的設計</td><td>強模型＋<b>參考截圖</b>＋圖片先生好（ChatGPT、Nano Banana）。</td></tr>
+    </table>
+    <div class="note" style="margin-top:12px"><b>3.8 Flash 很爛？</b><span>Flash 系列是為「快」設計的，做網頁、多步驟代理人容易漏東西、版面陽春，你的感覺有道理。換 Argon 或 Pro 再比一次。</span></div></div>
+  </div>
+</section>
+<section class="slide typeslide" data-title="教案設計⑩ 藝術創作" style="--c:var(--mag)">
+  <div class="eyebrow" style="--c:var(--mag)"><span class="sq"></span>教案設計 ⑩</div>
+  <h2>藝術創作：曼陀羅、纏繞畫，一筆一筆動給你看</h2>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,5fr) minmax(0,8fr)">
+    <div class="typecol">
+      <ul class="keys"><li><i>1</i><span><b>一筆一動畫</b>：每一筆、每一折都看得到，跟著做不會亂</span></li><li><i>2</i><span><b>實際大小底稿</b>：A4 印出來就是 1:1，照著描、照著剪</span></li><li><i>3</i><span><b>同主題分難度</b>：長輩做基本款、孩子加花樣，作品並排展</span></li></ul>
+      <div class="tools"><span class="tag">Claude／OpenCode 做步驟動畫</span><span class="tag">ChatGPT 畫完成圖</span><span class="tag">A4 底稿 PDF</span></div>
+      <div class="prompt"><div class="lab">提示詞・曼陀羅步驟動畫<button class="copy">複製</button></div>幫我做一個曼陀羅步驟動畫網頁：在圓形底稿上一圈一圈畫出 8 等分圖樣，共 6 步（畫十字輔助線、內圈花瓣、第二圈半圓、第三圈三角、外圈點點、著色）。每一步用 SVG 筆畫動畫一筆一筆畫出來，下方一行大字說明，有上一步／下一步／重播和速度調整，另有「下載 A4 底稿」按鈕。字要大，繁體中文。</div>
+      <div class="note" style="--c:var(--mag)"><b>代間玩法</b><span>祖孫各畫半邊曼陀羅，交換再加一圈；孩子選顏色、長輩描線條。</span></div>
+    </div>
+    <div class="excol"><div class="easy"><span class="elab">最簡單先上手</span><a class="ez" href="https://mattsue1003.github.io/mandala-generator/" target="_blank" rel="noopener"><img class="t" src="img/ex/mandala-generator.jpg" alt="曼陀羅著色畫 畫面" loading="lazy"><span><b>曼陀羅著色畫</b><small>一鍵出圖，印了就塗</small></span><img class="q" src="img/qr/mandala-generator.svg" alt="曼陀羅著色畫 QR code"></a><a class="ez" href="https://mattsue1003.github.io/zentangle-practice/" target="_blank" rel="noopener"><img class="t" src="img/ex/zentangle-practice.jpg" alt="纏繞畫練習單 畫面" loading="lazy"><span><b>纏繞畫練習單</b><small>照著格子描</small></span><img class="q" src="img/qr/zentangle-practice.svg" alt="纏繞畫練習單 QR code"></a><a class="ez" href="https://mattsue1003.github.io/pop-art-coloring/" target="_blank" rel="noopener"><img class="t" src="img/ex/pop-art-coloring.jpg" alt="圓點藝術著色 畫面" loading="lazy"><span><b>圓點藝術著色</b><small>點點塗滿就好看</small></span><img class="q" src="img/qr/pop-art-coloring.svg" alt="圓點藝術著色 QR code"></a></div><div class="exgrid" style="--m:3"><a class="ex" href="https://mattsue1003.github.io/mandala-lessons/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/mandala-lessons.jpg" alt="曼陀羅一圈一圈畫 畫面" loading="lazy"></div><div class="row"><span><b>曼陀羅一圈一圈畫</b><small>24 課步驟動畫＋A4 底稿</small></span><img class="q" src="img/qr/mandala-lessons.svg" alt="曼陀羅一圈一圈畫 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/tangle-steps/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/tangle-steps.jpg" alt="纏繞畫步驟示範 畫面" loading="lazy"></div><div class="row"><span><b>纏繞畫步驟示範</b><small>13 種圖樣一筆一筆畫</small></span><img class="q" src="img/qr/tangle-steps.svg" alt="纏繞畫步驟示範 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/paper-cut-workshop/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/paper-cut-workshop.jpg" alt="對摺剪紙工坊 畫面" loading="lazy"></div><div class="row"><span><b>對摺剪紙工坊</b><small>16 課剪紙動畫＋A4 圖樣</small></span><img class="q" src="img/qr/paper-cut-workshop.svg" alt="對摺剪紙工坊 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/gods-eye-weaving/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/gods-eye-weaving.jpg" alt="上帝之眼編織 畫面" loading="lazy"></div><div class="row"><span><b>上帝之眼編織</b><small>3D 繞線動畫 24 步</small></span><img class="q" src="img/qr/gods-eye-weaving.svg" alt="上帝之眼編織 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/seniorart/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/seniorart.jpg" alt="樂藝銀齡・長者藝術教案資料庫 畫面" loading="lazy"></div><div class="row"><span><b>樂藝銀齡・長者藝術教案資料庫</b><small>藝術教案依主題、材料找</small></span><img class="q" src="img/qr/seniorart.svg" alt="樂藝銀齡・長者藝術教案資料庫 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/art-senior-database/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/art-senior-database.jpg" alt="長者手工藝教案資料庫 畫面" loading="lazy"></div><div class="row"><span><b>長者手工藝教案資料庫</b><small>手工藝教案一次找齊</small></span><img class="q" src="img/qr/art-senior-database.svg" alt="長者手工藝教案資料庫 QR code"></div></a></div></div>
+  </div>
+</section>
+<!-- 更多教案 -->
+<section class="slide" data-title="更多教案資料庫">
+  <div class="eyebrow" style="--c:var(--sky)"><span class="sq"></span>帶回去用</div>
+  <h2>更多教案資料庫：找點子、找影片、找玩法</h2>
+  <div class="exgrid" style="--m:5"><a class="ex" href="https://mattsue1003.github.io/gamelearn/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/gamelearn.jpg" alt="互動式與遊戲化教學法知識圖卡 畫面" loading="lazy"></div><div class="row"><span><b>互動式與遊戲化教學法知識圖卡</b><small>問答、案例、電影、桌遊、實作、反思</small></span><img class="q" src="img/qr/gamelearn.svg" alt="互動式與遊戲化教學法知識圖卡 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/home-play-library/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/home-play-library.jpg" alt="在家動一動 活動庫 畫面" loading="lazy"></div><div class="row"><span><b>在家動一動 活動庫</b><small>運動、認知、體智能 78 個活動</small></span><img class="q" src="img/qr/home-play-library.svg" alt="在家動一動 活動庫 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/sensory-play-lessons/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/sensory-play-lessons.jpg" alt="感覺遊戲教案庫 畫面" loading="lazy"></div><div class="row"><span><b>感覺遊戲教案庫</b><small>100 個感覺遊戲，幼兒長輩都適用</small></span><img class="q" src="img/qr/sensory-play-lessons.svg" alt="感覺遊戲教案庫 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/eye-games-for-seniors/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/eye-games-for-seniors.jpg" alt="護眼同樂會 畫面" loading="lazy"></div><div class="row"><span><b>護眼同樂會</b><small>8 種團體視力遊戲，投影帶領</small></span><img class="q" src="img/qr/eye-games-for-seniors.svg" alt="護眼同樂會 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/classroom-screen/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/classroom-screen.jpg" alt="教室螢幕 畫面" loading="lazy"></div><div class="row"><span><b>教室螢幕</b><small>計時、分組、抽籤 33 個小工具</small></span><img class="q" src="img/qr/classroom-screen.svg" alt="教室螢幕 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/intergen-game-db/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/intergen-game-db.jpg" alt="幼老代間遊戲資料庫 畫面" loading="lazy"></div><div class="row"><span><b>幼老代間遊戲資料庫</b><small>37 個祖孫遊戲教案＋示範影片</small></span><img class="q" src="img/qr/intergen-game-db.svg" alt="幼老代間遊戲資料庫 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/one-set-many-games/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/one-set-many-games.jpg" alt="一題多玩 畫面" loading="lazy"></div><div class="row"><span><b>一題多玩</b><small>同一份題目，27 種遊戲模板</small></span><img class="q" src="img/qr/one-set-many-games.svg" alt="一題多玩 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/japan-dayservice-activity-videos/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/japan-dayservice-activity-videos.jpg" alt="日本日照團康影片資料庫 畫面" loading="lazy"></div><div class="row"><span><b>日本日照團康影片資料庫</b><small>350 支團康與體操，中文整理</small></span><img class="q" src="img/qr/japan-dayservice-activity-videos.svg" alt="日本日照團康影片資料庫 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/finger-database/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/finger-database.jpg" alt="手指操影片資料庫 畫面" loading="lazy"></div><div class="row"><span><b>手指操影片資料庫</b><small>50 支帶著做的示範影片</small></span><img class="q" src="img/qr/finger-database.svg" alt="手指操影片資料庫 QR code"></div></a><a class="ex" href="https://mattsue1003.github.io/temponumber/" target="_blank" rel="noopener"><div class="ph"><img src="img/ex/temponumber.jpg" alt="節奏挑戰・數字版 畫面" loading="lazy"></div><div class="row"><span><b>節奏挑戰・數字版</b><small>跟著拍子念數字，團體版</small></span><img class="q" src="img/qr/temponumber.svg" alt="節奏挑戰・數字版 QR code"></div></a></div>
+</section>
+<!-- 提示詞庫 -->
+<section class="slide" data-title="提示詞庫">
+  <div class="eyebrow" style="--c:var(--sky)"><span class="sq"></span>帶回去用</div>
+  <h2>提示詞庫：把（ ）換掉就能用</h2>
+  <div class="cols" style="--n:2">
+    <div class="prompt"><div class="lab">代間活動教案<button class="copy">複製</button></div>設計一堂 60 分鐘的祖孫代間活動，主題（台灣小吃），孩子（5–8 歲）、長輩（70–85 歲）各 10 位。包含破冰（感覺動作）、主活動（配對或排序遊戲）、連結已知（請長輩分享）、收尾。每段寫時間、道具、帶領說法，以及孩子版／長輩版的難度調整。</div>
+    <div class="prompt"><div class="lab">一副道具玩四種<button class="copy">複製</button></div>我有一副（撲克牌／1–16 數字牌），請依「配對、組合、排序、線索」四個機制各設計一個玩法，每個寫：做法、變簡單、變難、帶領時可以說的一句話。適合祖孫一起玩。</div>
+    <div class="prompt"><div class="lab">簡報遊戲網頁<button class="copy">複製</button></div>幫我做一個（找不同／搶答／分類反應）簡報遊戲網頁，主題（ ），共 10 題、前易後難，按空白鍵換題，答案出現時有音效，可分兩隊計分。字要大、繁體中文。</div>
+    <div class="prompt"><div class="lab">影片停格提問<button class="copy">複製</button></div>把這支影片（網址）切成 4–6 段，每段寫時間碼、重點、給孩子一題、給長輩一題，最後設計一個 5 分鐘的動手活動。看不到的寫「影片未提及」。</div>
+    <div class="prompt"><div class="lab">學習單分級<button class="copy">複製</button></div>把這張學習單（貼內容）做成兩個版本：簡單版（題數少、字更大、有提示）給長輩，挑戰版（多 2 題、要推理）給孩子，兩張可以一起做。A4 直式、繁體中文。</div>
+    <div class="prompt"><div class="lab">先問我再做<button class="copy">複製</button></div>在開始之前，請先問我 5 個你需要知道的問題（對象年齡、人數、道具、時間、場地），等我回答完再做。</div>
+  </div>
+</section>
+<!-- 課後任務 -->
+<section class="slide" data-title="課後任務">
+  <div class="eyebrow" style="--c:var(--sky)"><span class="sq"></span>課後任務</div>
+  <h2>兩週內，做出你的第一個代間教案</h2>
+  <div class="cols" style="--n:2">
+    <ul class="check">
+      <li><label><input type="checkbox" id="h1"><span><b>用 Typeless 口述一個活動點子</b>，貼給 AI 整理成教案</span></label></li>
+      <li><label><input type="checkbox" id="h2"><span><b>用撲克牌或 1–16 數字牌</b>，設計四大機制各一個玩法</span></label></li>
+      <li><label><input type="checkbox" id="h3"><span><b>做一個簡報遊戲</b>，祖孫或同事試玩一次</span></label></li>
+      <li><label><input type="checkbox" id="h4"><span><b>做一張分級學習單</b>，簡單版、挑戰版各一張</span></label></li>
+      <li><label><input type="checkbox" id="h5"><span><b>用 OpenCode 做一份活動報名表</b>，自己按發布</span></label></li>
+      <li><label><input type="checkbox" id="h6"><span><b>上架一個教案網頁</b>，把網址貼到 LINE 社群</span></label></li>
+    </ul>
+    <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+      <div class="note" style="--c:var(--blue)"><b>卡住了</b><span>截圖貼到 LINE 學員社群，寫「哪一步、出現什麼畫面」。</span></div>
+      <div class="note" style="--c:var(--mag)"><b>記得</b><span>不放孩子和長輩的姓名、照片給 AI；AI 做的規則與內容，帶活動前自己玩一次。</span></div>
+      <div class="note" style="--c:var(--lime)"><b>勾選</b><span>打勾會記在這台電腦的瀏覽器裡，下次打開還在。</span></div>
+    </div>
+  </div>
+</section>
+<!-- 20 結尾 -->
+<section class="slide cover" data-title="謝謝聆聽">
+  <div class="confetti" aria-hidden="true">
+    <i style="left:6%;top:10%;width:30px;height:30px;background:var(--mag)"></i>
+    <i style="left:93%;top:72%;width:22px;height:22px;background:var(--lime);animation-delay:-2s"></i>
+    <i style="left:48%;top:6%;width:18px;height:18px;background:var(--sky);animation-delay:-1s"></i>
+    <i style="left:56%;top:84%;width:40px;height:40px;background:var(--amber);animation-delay:-3s"></i>
+  </div>
+  <div class="eyebrow"><span class="sq"></span>謝謝聆聽</div>
+  <div class="cols" style="--n:2;grid-template-columns:minmax(0,1fr) auto;align-items:center;position:relative">
+    <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+      <h2 style="font-size:44px;font-family:var(--f-display)">Happiness is not a goal…<br>it's a by-product of a life well lived.</h2>
+      <p class="lede">快樂不是一個目標，它是踏實人生的副產品。（Eleanor Roosevelt）</p>
+      <div style="display:flex;flex-wrap:wrap;gap:10px">
+        <a class="pill" href="https://www.facebook.com/chungmenghsiu" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">鍾孟修 臉書</a>
+        <a class="pill" href="https://www.facebook.com/profile.php?id=100063748491881" target="_blank" rel="noopener" style="text-decoration:none;color:var(--ink)">粉絲專頁</a>
+      </div>
+    </div>
+    <div class="endqrs">
+      <a class="fbcard" href="https://mattsue1003.github.io/nutc-teacher-community/" target="_blank" rel="noopener"><img src="img/qr-deck.svg" alt="本簡報 QR code"><b>帶走<br>這份簡報</b><span class="fbbtn" style="background:var(--ink)">開啟簡報 ↗</span></a>
+      <a class="fbcard" href="https://www.facebook.com/profile.php?id=100063748491881" target="_blank" rel="noopener"><img src="img/qr-fb.svg" alt="粉絲專頁 QR code"><b>加入粉絲專頁<br>看更多作品</b><span class="fbbtn">前往粉絲專頁 ↗</span></a>
+      <a class="fbcard" href="https://line.me/ti/g2/HTz-kWvRyDZhYRKHEDjXISFfEyb3xxPlGT16hA?utm_source=invitation&amp;utm_medium=link_copy&amp;utm_campaign=default" target="_blank" rel="noopener"><img src="img/qr-line.svg" alt="LINE 學員社群 QR code"><b>加入 LINE<br>學員社群</b><span class="fbbtn" style="background:var(--green)">加入 LINE 社群 ↗</span></a>
+    </div>
+  </div>
+  <p class="muted" style="font-size:13px;position:relative">設計｜愛迪樂 鍾孟修 職能治療師　範例教案皆可免費使用</p>
+</section>
+<style>
+/* 審查修正 11/15：手機版 */
+@media (max-width:900px){
+  body.scroll .slide>.cols{max-height:none!important}
+  body.scroll .slide>.cols>figure.shot{height:auto!important}
+  .note{flex-direction:column;align-items:stretch!important;gap:4px}
+  .note>*{text-align:left}
+  .copy{min-height:36px;padding:6px 16px;font-size:13px}
+  .cover h2[style*="font-size:44px"]{font-size:30px!important}
+  .tbl:has(table.cards){overflow:visible}
+  table.cmp.cards tr.hd{display:none}
+  table.cmp.cards,table.cmp.cards tbody,table.cmp.cards tr,table.cmp.cards td{display:block;width:auto!important}
+  table.cmp.cards tr{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:10px;background:var(--paper)}
+  table.cmp.cards td{border:0;padding:4px 0;white-space:normal!important}
+  table.cmp.cards td:first-child{font-size:17px;padding-bottom:6px;margin-bottom:4px;border-bottom:1px solid var(--line)}
+  table.cmp.cards td[data-label]::before{content:attr(data-label);display:block;font-size:12px;font-weight:800;letter-spacing:.04em;color:var(--lc,var(--muted))}
+}
+</style>
+</div></main>
+
+<button class="navbtn prev" id="prev" aria-label="上一頁">←</button>
+<button class="navbtn next" id="next" aria-label="下一頁">→</button>
+<div class="ctas">
+  <a class="cta g" href="https://line.me/ti/g2/HTz-kWvRyDZhYRKHEDjXISFfEyb3xxPlGT16hA?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" target="_blank" rel="noopener">LINE 社群</a>
+</div>
+<nav class="toc" id="toc" aria-label="目錄"><ol id="tocList"></ol></nav>
+<div class="lightbox" id="lb"><img alt=""></div>
+
+<script>
+(function(){
+  const slides=[...document.querySelectorAll('.slide')];
+  const stage=document.getElementById('stage'), vp=document.getElementById('vp');
+  let cur=0;
+  const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+  slides.forEach((s,i)=>s.id='s'+(i+1));
+  // TOC
+  const tl=document.getElementById('tocList');
+  slides.forEach((s,i)=>{const li=document.createElement('li');li.innerHTML=`<a href="#s${i+1}"><i>${i+1}</i><span>${s.dataset.title||''}</span></a>`;tl.appendChild(li)});
+  const toc=document.getElementById('toc');
+  function toggleToc(v){toc.classList.toggle('on',v??!toc.classList.contains('on'));}
+  document.getElementById('btnToc').onclick=()=>toggleToc();
+  toc.addEventListener('click',e=>{if(e.target.closest('a'))toggleToc(false)});
+  // mode
+  const mq=matchMedia('(max-width:900px)');
+  let scroll=mq.matches||store.get('intergenai-mode')==='scroll';
+  function applyMode(){document.body.classList.toggle('scroll',scroll);document.getElementById('btnMode').textContent=scroll?'逐頁簡報':'捲動閱讀';fit();if(!scroll)show(cur,false)}
+  document.getElementById('btnMode').onclick=()=>{scroll=!scroll;store.set('intergenai-mode',scroll?'scroll':'deck');applyMode();if(scroll)slides[cur].scrollIntoView()};
+  function fit(){if(scroll){stage.style.transform='';stage.style.width='';stage.style.height='';return}
+    const r=vp.getBoundingClientRect();const s=Math.min(r.width/1280,r.height/720);
+    stage.style.width=(r.width/s)+'px';stage.style.height=(r.height/s)+'px';stage.style.transform=`scale(${s})`}
+  addEventListener('resize',fit);
+  function show(i,push=true){cur=Math.max(0,Math.min(slides.length-1,i));
+    slides.forEach((s,j)=>s.classList.toggle('on',j===cur||scroll));
+    document.getElementById('prog').textContent=`${cur+1} / ${slides.length}`;
+    document.getElementById('bar').style.width=((cur+1)/slides.length*100)+'%';
+    [...tl.querySelectorAll('a')].forEach((a,j)=>a.classList.toggle('cur',j===cur));
+    if(push&&location.hash!=='#s'+(cur+1))history.replaceState(null,'','#s'+(cur+1));
+    if(scroll&&push)slides[cur].scrollIntoView({behavior:'smooth'});}
+  function fromHash(){const m=location.hash.match(/^#s(\d+)$/);if(m)show(+m[1]-1,false)}
+  addEventListener('hashchange',()=>{fromHash();if(scroll)slides[cur].scrollIntoView()});
+  document.getElementById('prev').onclick=()=>show(cur-1);
+  document.getElementById('next').onclick=()=>show(cur+1);
+  // steppers
+  const steppers=slides.map(s=>{const st=s.querySelector('[data-stepper]');if(!st)return null;
+    const lis=[...st.querySelectorAll('.steps li')], img=st.querySelector('.frame img'), cap=st.querySelector('.cap'), bar=st.querySelector('.stepbar');
+    bar.innerHTML=lis.map(()=>'<i></i>').join('');
+    const o={i:0,n:lis.length,go(k){o.i=Math.max(0,Math.min(lis.length-1,k));lis.forEach((li,j)=>{li.classList.toggle('cur',j===o.i);li.classList.toggle('done',j<o.i)});
+      [...bar.children].forEach((b,j)=>b.classList.toggle('on',j<=o.i));
+      const L=lis[o.i];img.src=L.dataset.img;img.alt=L.dataset.cap;cap.textContent=`步驟 ${o.i+1}／${lis.length}　${L.dataset.cap}`;}};
+    lis.forEach(li=>{const im=document.createElement('img');im.className='inl';im.loading='lazy';im.src=li.dataset.img;im.alt=li.dataset.cap;im.addEventListener('click',e=>{e.stopPropagation();lb.querySelector('img').src=im.src;lb.classList.add('on')});li.querySelector('div').appendChild(im)});
+    lis.forEach((li,j)=>{li.tabIndex=0;li.addEventListener('click',()=>o.go(j));li.addEventListener('keydown',e=>{if(e.key==='Enter')o.go(j)})});
+    o.go(0);return o});
+  // keys
+  addEventListener('keydown',e=>{if(e.target.closest('input,textarea'))return;
+    const st=steppers[cur];
+    if(e.key==='Escape'){toggleToc(false);lb.classList.remove('on');return}
+    if(e.key==='t'||e.key==='T'){toggleToc();return}
+    if(e.key==='f'||e.key==='F'){fs();return}
+    if(scroll)return;
+    if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(cur+1)}
+    else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(cur-1)}
+    else if(e.key==='ArrowDown'&&st){e.preventDefault();if(st.i<st.n-1)st.go(st.i+1);else show(cur+1)}
+    else if(e.key==='ArrowUp'&&st){e.preventDefault();st.go(st.i-1)}
+    else if(e.key==='Home')show(0);else if(e.key==='End')show(slides.length-1);
+  });
+  function fs(){const d=document;try{if(!d.fullscreenElement)d.documentElement.requestFullscreen().catch(()=>{});else d.exitFullscreen()}catch(e){}}
+  document.getElementById('btnFs').onclick=fs;
+  // copy
+  document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',()=>{
+    const box=b.closest('.prompt');const t=[...box.childNodes].filter(n=>!(n.nodeType===1&&n.classList.contains('lab'))).map(n=>n.textContent).join('').trim();
+    const ok=()=>{b.textContent='已複製';b.classList.add('ok');setTimeout(()=>{b.textContent='複製';b.classList.remove('ok')},1600)};
+    const fb=()=>{const r=document.createRange();r.selectNodeContents(box);const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='已選取，按 Ctrl+C'};
+    try{navigator.clipboard.writeText(t).then(ok,fb)}catch(e){fb()}
+  }));
+  // lightbox
+  const lb=document.getElementById('lb');
+  document.querySelectorAll('.frame').forEach(f=>f.addEventListener('click',()=>{lb.querySelector('img').src=f.querySelector('img').src;lb.classList.add('on')}));
+  lb.onclick=()=>lb.classList.remove('on');
+  // checkboxes
+  document.querySelectorAll('.check input').forEach(c=>{c.checked=store.get('intergenai-'+c.id)==='1';c.addEventListener('change',()=>store.set('intergenai-'+c.id,c.checked?'1':'0'))});
+  // swipe
+  let x0=null;vp.addEventListener('touchstart',e=>{x0=e.touches[0].clientX},{passive:true});
+  vp.addEventListener('touchend',e=>{if(scroll||x0==null)return;const dx=e.changedTouches[0].clientX-x0;if(Math.abs(dx)>60)show(cur+(dx<0?1:-1));x0=null});
+  applyMode();fromHash();show(cur,false);
+  if(scroll&&cur>0)requestAnimationFrame(()=>slides[cur].scrollIntoView());
+})();
+</script>
+<script>
+document.querySelectorAll('table.cmp').forEach(function(t){var hr=t.rows[0];if(!hr)return;var hs=[].slice.call(hr.cells);if(hs.length<3||hs[0].tagName!=='TH')return;t.classList.add('cards');hr.classList.add('hd');
+  [].slice.call(t.rows,1).forEach(function(r){[].slice.call(r.cells).forEach(function(c,j){if(j>0&&hs[j]){c.dataset.label=hs[j].textContent.trim();c.style.setProperty('--lc',getComputedStyle(hs[j]).color)}})})});
+</script>
